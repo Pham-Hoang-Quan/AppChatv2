@@ -43,7 +43,7 @@ export default function ChatScreen({ user, navigation }) {
               navigation.goBack();
             }} />
           <AvtChatScreen url={userSelected.avatarUrl} />
-          <Text style = {styles.nameInNav} >{userSelected.fullName} </Text>
+          <Text style={styles.nameInNav} >{userSelected.fullName} </Text>
         </>
       ),
       headerBackImage: () => (
@@ -115,14 +115,18 @@ export default function ChatScreen({ user, navigation }) {
     }
   };
 
+  // hàm để chuyển thời gian gửi tin nhắn thành giờ việt nam và cắt để lại giờ và phút
   function timeSend(time) {
-    return time.slice(11, 16);
+    // return time.slice(11, 16);
+    const utcTimestamp = new Date(time); // Chuyển đổi thành đối tượng Date
+    const localTimestamp = utcTimestamp.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }); // Định dạng thời gian theo múi giờ New York
+
+    //console.log(localTimestamp); // Kết quả hiển thị thời gian đã được chuyển đổi
+    return localTimestamp.slice(11, 16);
   };
 
   return (
-
     <>
-
       <ImageBackground
         source={require('../../assets/Res.png')}
         style={styles.listMess}>
