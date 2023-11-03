@@ -72,9 +72,9 @@ PODS:
     - FlipperKit/FlipperKitNetworkPlugin
   - fmt (6.2.1)
   - glog (0.3.5)
-  - hermes-engine (0.72.6):
-    - hermes-engine/Pre-built (= 0.72.6)
-  - hermes-engine/Pre-built (0.72.6)
+  - hermes-engine (0.72.4):
+    - hermes-engine/Pre-built (= 0.72.4)
+  - hermes-engine/Pre-built (0.72.4)
   - libevent (2.1.12)
   - lottie-ios (4.2.0)
   - lottie-react-native (6.1.2):
@@ -525,9 +525,6 @@ PODS:
     - React-Core
   - RNSVG (12.3.0):
     - React-Core
-  - RNVectorIcons (10.0.1):
-    - RCT-Folly (= 2021.07.22.00)
-    - React-Core
   - SocketRocket (0.6.1)
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
@@ -617,7 +614,6 @@ DEPENDENCIES:
   - RNSearchBar (from `../node_modules/react-native-search-bar`)
   - RNSound (from `../node_modules/react-native-sound`)
   - RNSVG (from `../node_modules/react-native-svg`)
-  - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
   - "zego-uikit-prebuilt-call-rn (from `../node_modules/@zegocloud/zego-uikit-prebuilt-call-rn`)"
   - "zego-uikit-rn (from `../node_modules/@zegocloud/zego-uikit-rn`)"
@@ -750,8 +746,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-sound"
   RNSVG:
     :path: "../node_modules/react-native-svg"
-  RNVectorIcons:
-    :path: "../node_modules/react-native-vector-icons"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
   zego-uikit-prebuilt-call-rn:
@@ -776,7 +770,7 @@ SPEC CHECKSUMS:
   FlipperKit: 2efad7007d6745a3f95e4034d547be637f89d3f6
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
-  hermes-engine: 8057e75cfc1437b178ac86c8654b24e7fead7f60
+  hermes-engine: 81191603c4eaa01f5e4ae5737a9efcf64756c7b2
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   lottie-ios: 809ecf2d460ed650a6aed7aa88b2ec45fab4779c
   lottie-react-native: 3d6f1b0db1fd9e18b92af1fbfbf67037611bae67
@@ -826,7 +820,6 @@ SPEC CHECKSUMS:
   RNSearchBar: 9860431356b7d12a8449d2fddb2b5f3c78d1e99f
   RNSound: 6c156f925295bdc83e8e422e7d8b38d33bc71852
   RNSVG: 302bfc9905bd8122f08966dc2ce2d07b7b52b9f8
-  RNVectorIcons: ace237de89f1574ef3c963ae9d5da3bd6fbeb02a
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Yoga: 3efc43e0d48686ce2e8c60f99d4e6bd349aff981
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
