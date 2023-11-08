@@ -11,6 +11,14 @@ import AddUserScreen from './app/screens/AddUserScreen';
 import { ApplicationProvider } from '@ui-kitten/components';
 import { mapping, light as lightTheme } from '@eva-design/eva';
 import Home from './app/screens/Home';
+import QRCodeScanner from './app/screens/QRCodeScanner';
+import EditFullName from './app/screens/EditFullName';
+import EditEmail from './app/screens/EditEmail';
+import EditNumberPhone from './app/screens/EditNumberPhone';
+import ChangePassScreen from './app/screens/ChangePassScreen';
+import NotiAndSoundScreen from './app/screens/NotiAndSoundScreen';
+import ChatInfor from './app/screens/ChatInfor';
+import ImageLinkScreen from './app/screens/ImageLinkScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -51,6 +59,30 @@ export default function App() {
               </Stack.Screen>
               <Stack.Screen name="Home">
                 {(props) => <Home {...props} user={user} options={{ headerShown: false }} />}
+              </Stack.Screen>
+              <Stack.Screen name="QRCodeScanner">
+                {(props) => <QRCodeScanner {...props} user={user} options={{ headerShown: false }} />}
+              </Stack.Screen>
+              <Stack.Screen name="EditFullName">
+                {(props) => <EditFullName {...props} user={user} options={{ headerShown: false }} />}
+              </Stack.Screen>
+              <Stack.Screen name="EditEmail">
+                {(props) => <EditEmail {...props} user={user} options={{ headerShown: false }} />}
+              </Stack.Screen>
+              <Stack.Screen name="EditNumberPhone">
+                {(props) => <EditNumberPhone {...props} user={user} options={{ headerShown: false }} />}
+              </Stack.Screen>
+              <Stack.Screen name="ChangePassScreen">
+                {(props) => <ChangePassScreen {...props} user={user} options={{ headerShown: false }} />}
+              </Stack.Screen>
+              <Stack.Screen name="NotiAndSoundScreen">
+                {(props) => <NotiAndSoundScreen {...props} user={user} options={{ headerShown: false }} />}
+              </Stack.Screen>
+              <Stack.Screen name="ChatInfor">
+                {(props) => <ChatInfor {...props} user={user} options={{ headerShown: false }} />}
+              </Stack.Screen>
+              <Stack.Screen name="ImageLinkScreen">
+                {(props) => <ImageLinkScreen {...props} user={user} options={{ headerShown: false }} />}
               </Stack.Screen>
             </>
           ) : (

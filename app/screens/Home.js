@@ -9,6 +9,8 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { Avatar } from 'react-native-paper';
 import ListFriends from './ListFriends';
 import ip from '../../ipConfig';
+import Account from './Account';
+import SettingScreen from './SettingScreen';
 
 
 const AlbumsRoute = () => <Text>Albums</Text>;
@@ -69,17 +71,19 @@ const Home = (user) => {
   const [routes] = React.useState([
     { key: 'userList', title: 'Đoạn Chat', focusedIcon: 'home', unfocusedIcon: 'home-outline' },
     { key: 'listFriends', title: 'Bạn bè', focusedIcon: 'account-multiple' , unfocusedIcon: 'account-multiple-outline' },
-    { key: 'recents', title: 'Cá nhân', focusedIcon: 'account-circle', unfocusedIcon: 'account-circle-outline' },
-    { key: 'notifications', title: 'Cài đặt', focusedIcon: 'cog-outline', unfocusedIcon: 'cog-outline' },
+    { key: 'account', title: 'Cá nhân', focusedIcon: 'account-circle', unfocusedIcon: 'account-circle-outline' },
+    { key: 'setting', title: 'Cài đặt', focusedIcon: 'cog-outline', unfocusedIcon: 'cog-outline' },
   ]);
   const UserListRouter = () => <UserListScreen user={user} userList={userList} ></UserListScreen>;
   const ListFriendsRouter = () => <ListFriends user={user} userList={userList} ></ListFriends>;
+  const AccountRouter = () => <Account user={user} userList={userList} ></Account>;
+  const SettingRouter = () => <SettingScreen user={user} userList={userList} ></SettingScreen>;
   
   const renderScene = BottomNavigation.SceneMap({
     userList: UserListRouter,
     listFriends: ListFriendsRouter,
-    recents: RecentsRoute,
-    notifications: NotificationsRoute,
+    account: AccountRouter,
+    setting: SettingRouter,
   });
 
   return (

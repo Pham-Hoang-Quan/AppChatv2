@@ -10,6 +10,7 @@ import axios from 'axios';
 
 import SearchUserList from '../components/SearchUserList';
 import CardFriend from '../components/CardFriend';
+import QRCodeComponenet from '../components/QRCode';
 
 
 export default function ListFriends({ user, userList }) {
@@ -87,7 +88,7 @@ export default function ListFriends({ user, userList }) {
                     <SearchUserList></SearchUserList>
                     <View style = {styles.headerContainer} >
                         <Text style={styles.textDSBB}>Danh sách bạn bè</Text>
-                        <Text style={styles.textSeeMore}>Xem thêm</Text>
+                        <Text style={styles.textSeeMore} onPress={() => {navigation.navigate('QRCodeScanner')}} >Xem thêm</Text>
                     </View>
 
                     <FlatList
@@ -103,7 +104,6 @@ export default function ListFriends({ user, userList }) {
                     />
 
                 </View>
-
 
             </View>
         </ImageBackground>

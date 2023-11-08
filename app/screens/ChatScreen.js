@@ -31,7 +31,7 @@ export default function ChatScreen({ user, navigation }) {
         <>
           <FontAwesome5Icon name="phone-alt" style={styles.callIcon} />
           <FontAwesome5Icon name="video" style={styles.videoIcon} />
-          <FontAwesome5Icon name="info-circle" style={styles.infoIcon} />
+          <FontAwesome5Icon name="info-circle" style={styles.infoIcon} onPress={() => {navigation.navigate('ChatInfor')}} />
         </>
       ),
       headerLeft: () => (

@@ -24,25 +24,11 @@ export default function UserListScreen({ user, userList }) {
   // const [userList, setUserList] = useState([]);
   const [userSelected, setUserSelected] = useState(null); // State để lưu user được chọn
 
-  const [myInfo, setMyInfo] = useState();
-
-  const [userListAPI, setUserListAPI] = useState([]);
 
 
 
 
-  // useEffect(() => {
-  //   // Gọi API để lấy danh sách người dùng đã nhắn tin với người dùng hiện tại
-  //   axios.get(`http://${ip}:3000/users/${user.uid}/messages`)
-  //     .then((response) => {
-  //       const data = response.data;
-  //       setUserList(data);
-  //       console.log(data)
-  //     })
-  //     .catch((error) => {
-  //       console.error('Lỗi khi lấy danh sách người dùng:', error);
-  //     });
-  // }, []);
+
 
   const handleUserSelect = (user) => {
     if (user.fullName != null) {
