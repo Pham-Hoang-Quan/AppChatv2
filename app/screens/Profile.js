@@ -10,7 +10,10 @@ import { Clipboard, Alert } from 'react-native';
 import { Avatar, Button, Navigation, Card, Text } from 'react-native-paper';
 
 
-export default function Profile({ userId }) {
+export default function Profile({ }) {
+
+    const route = useRoute();
+    const { userId, setUserId } = route.params;
 
     const navigation = useNavigation();
     const [userData, setUserData] = useState([]);
@@ -20,8 +23,7 @@ export default function Profile({ userId }) {
 
 
     useEffect(() => {
-        axios.get(`http://${ip}:3000/users/userId`)
-        // axios.get(`http://${ip}:3000/users/cXbiOdMOWTbQeJOdGD1gFuQMGjN2`)
+        axios.get(`http://${ip}:3000/users/${userId}`)
             .then((response) => {
                 const data = response.data;
                 setUserData(data);
@@ -32,7 +34,7 @@ export default function Profile({ userId }) {
             });
     }, []);
 
-    const chatting  = (user) => {
+    const chatting = (user) => {
         navigation.navigate('ChatScreen', { userSelected: user });
     }
 
@@ -74,11 +76,11 @@ export default function Profile({ userId }) {
                         </Button>
                     </View>
                     <View>
-                        <Button 
-                        labelStyle={{ fontSize: 18 }} 
-                        textColor='#d73a49' 
-                        style={styles.btnCancel}
-                        onPress={() => {navigation.navigate('QRCodeScanner')}}>
+                        <Button
+                            labelStyle={{ fontSize: 18 }}
+                            textColor='#d73a49'
+                            style={styles.btnCancel}
+                            onPress={() => { navigation.navigate('QRCodeScanner') }}>
                             <FontAwesome5Icon name='times' size={18}></FontAwesome5Icon>
                         </Button>
                     </View>
@@ -177,6 +179,6 @@ const styles = StyleSheet.create({
         width: 45,
         alignSelf: 'center',
         marginTop: 20,
-        
+
     },
 });
