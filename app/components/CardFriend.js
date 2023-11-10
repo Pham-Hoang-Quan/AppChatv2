@@ -1,8 +1,10 @@
 import * as React from 'react';
 import { Avatar, Button, Card, Text } from 'react-native-paper';
 import { StyleSheet } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 const CardFriend = (props) => {
+    const navigation =  useNavigation();
     const { item } = props;
     return (
         <Card
@@ -22,7 +24,7 @@ const CardFriend = (props) => {
                 <Button style={styles.btnMessage} textColor='#89C4E1'>
                     Nhắn tin
                 </Button>
-                <Button style={styles.btnDelete}>Xóa</Button>
+                <Button style={styles.btnDelete} onPress={() => navigation.navigate('Profile')} >Xóa</Button>
             </Card.Actions>
         </Card>
     );
