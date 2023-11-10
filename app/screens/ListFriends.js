@@ -97,7 +97,6 @@ export default function ListFriends({ user, userList }) {
                         keyExtractor={(item) => item.userId}
                         renderItem={({ item }) => (
                             <>
-
                                 <CardFriend item={item} />
                             </>
                         )}

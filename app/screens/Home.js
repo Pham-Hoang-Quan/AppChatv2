@@ -11,6 +11,7 @@ import ListFriends from './ListFriends';
 import ip from '../../ipConfig';
 import Account from './Account';
 import SettingScreen from './SettingScreen';
+import QRCodeScanner from './QRCodeScanner';
 
 
 const AlbumsRoute = () => <Text>Albums</Text>;
@@ -71,19 +72,25 @@ const Home = (user) => {
   const [routes] = React.useState([
     { key: 'userList', title: 'Đoạn Chat', focusedIcon: 'home', unfocusedIcon: 'home-outline' },
     { key: 'listFriends', title: 'Bạn bè', focusedIcon: 'account-multiple' , unfocusedIcon: 'account-multiple-outline' },
+    { key: 'qrScanner', title: 'Quét QR', focusedIcon: 'qrcode-scan', unfocusedIcon: 'qrcode-scan' },
     { key: 'account', title: 'Cá nhân', focusedIcon: 'account-circle', unfocusedIcon: 'account-circle-outline' },
     { key: 'setting', title: 'Cài đặt', focusedIcon: 'cog-outline', unfocusedIcon: 'cog-outline' },
+
   ]);
   const UserListRouter = () => <UserListScreen user={user} userList={userList} ></UserListScreen>;
   const ListFriendsRouter = () => <ListFriends user={user} userList={userList} ></ListFriends>;
   const AccountRouter = () => <Account user={user} userList={userList} ></Account>;
   const SettingRouter = () => <SettingScreen user={user} userList={userList} ></SettingScreen>;
+  const QRScannerRouter = () => <QRCodeScanner user={user} userList={userList} ></QRCodeScanner>;
+
   
   const renderScene = BottomNavigation.SceneMap({
     userList: UserListRouter,
     listFriends: ListFriendsRouter,
+    qrScanner: QRScannerRouter,
     account: AccountRouter,
     setting: SettingRouter,
+    
   });
 
   return (
