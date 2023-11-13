@@ -93,9 +93,14 @@ export default function Account({ user }) {
                                             </TouchableOpacity>
                                             <Text style={{ backgroundColor: '#EDE4FF', fontSize: 0.5, borderRadius: 5 }} />
                                             <TouchableOpacity >
-                                                <Text style={styles.modalOption}>Chọn ảnh từ thư viện</Text>
+                                                <Text style={styles.modalOption}>Chọn từ thư viện</Text>
                                             </TouchableOpacity>
                                             <Text style={{ backgroundColor: '#EDE4FF', fontSize: 0.5, borderRadius: 5 }} />
+                                            <TouchableOpacity >
+                                                <Text style={styles.modalOption} onPress={() => navigation.navigate('GenerateImage')} >Tạo ảnh bằng AI</Text>
+                                            </TouchableOpacity>
+                                            <Text style={{ backgroundColor: '#EDE4FF', fontSize: 0.5, borderRadius: 5 }} />
+
                                             <TouchableOpacity >
                                                 <Text style={styles.modalOption}>Xem ảnh</Text>
                                             </TouchableOpacity>

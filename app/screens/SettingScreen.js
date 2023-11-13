@@ -5,8 +5,20 @@ import { Avatar } from 'react-native-paper';
 import axios from 'axios';
 import ip from '../../ipConfig';
 import { List } from 'react-native-paper';
+import { FIREBASE_AUTH} from '../../FirebseConfig';
+import { signOut } from 'firebase/auth';
 
 export default function SettingScreen({ user }) {
+
+    const handleSignOut = async () => {
+        try {
+            await signOut(FIREBASE_AUTH);
+            navigation.navigate('Login');
+        } catch (error) {
+            console.error('Lỗi khi đăng xuất:', error);
+        }
+    };
+
     const navigation = useNavigation();
     const [userData, setUserData] = useState([]);
     const changePass = async () => {
@@ -22,7 +34,7 @@ export default function SettingScreen({ user }) {
     const image = async () => {
         navigation.navigate('ImageScreen');
     };
-    
+
 
     useEffect(() => {
         axios.get(`http://${ip}:3000/users/${user.user.uid}`)
@@ -62,6 +74,7 @@ export default function SettingScreen({ user }) {
                         titleStyle={{ fontWeight: 'bold' }}
                         left={props => <List.Icon {...props} icon="account" color='white' style={styles.listIconStyle} />}
                         style={styles.listItemStyle}
+                        onPress={() => navigation.navigate('')}
                     />
                     <List.Item
                         title="Chế độ tối"
@@ -84,7 +97,7 @@ export default function SettingScreen({ user }) {
                         description="Đăng xuất tài khoản"
                         titleStyle={{ fontWeight: 'bold' }}
                         left={props => <List.Icon {...props} icon="logout" color='white' style={styles.listIconStyle} />}
-                        onPress={image}
+                        onPress={() => {handleSignOut()}}
                     />
                 </List.Section>
             </View>

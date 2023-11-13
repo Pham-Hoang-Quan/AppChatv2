@@ -30,7 +30,7 @@ export default function EditFullName({ user }) {
         axios.put(`http://${ip}:3000/users/updateFullName/${user.uid}`, requestData)
             .then((response) => {
                 console.log('Cập nhật họ và tên thành công');
-                navigation.navigate('Home');
+                navigation.navigate('Home', { user: user })
             })
             .catch((error) => {
                 console.error('Lỗi cập nhật họ và tên:', error);

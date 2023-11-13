@@ -61,7 +61,7 @@ export default function EditNumberPhone({ user }) {
         axios.put(`http://${ip}:3000/users/updatePhoneNumber/${user.uid}`, requestData)
             .then((response) => {
                 console.log('Cập nhật Số điện thoại thành công');
-                navigation.navigate('Home');
+                navigation.navigate('Home', { user: user })
             })
             .catch((error) => {
                 console.error('Lỗi cập nhật Số điện thoại:', error);

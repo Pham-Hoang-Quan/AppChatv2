@@ -15,6 +15,10 @@ import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import ip from '../../ipConfig';
 import { useFocusEffect } from '@react-navigation/native';
 
+import { MessageText } from 'react-native-link-preview';
+
+
+
 
 export default function ChatScreen({ user, navigation }) {
   const route = useRoute();
@@ -140,6 +144,7 @@ export default function ChatScreen({ user, navigation }) {
                   <>
                     <View style={styles.myMessageContainer}>
                       <Text style={styles.message}>{item.content}</Text>
+                      <MessageText text={item.content} />
                     </View>
                     <View style={styles.myTimeContainer}>
                       <FontAwesome5Icon name="clock" size={10} color="#66666" style={[styles.myTime]} />
@@ -158,7 +163,7 @@ export default function ChatScreen({ user, navigation }) {
               </View>
             )} />
         </View>
-
+        
       </ImageBackground>
       <View style={{ backgroundColor: 'white', }} >
         <View style={styles.inputConponent}>

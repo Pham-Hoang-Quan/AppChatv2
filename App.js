@@ -20,6 +20,7 @@ import NotiAndSoundScreen from './app/screens/NotiAndSoundScreen';
 import ChatInfor from './app/screens/ChatInfor';
 import ImageLinkScreen from './app/screens/ImageLinkScreen';
 import Profile from './app/screens/Profile';
+import GenerateImage from './app/screens/GenerateImage';
 
 
 const Stack = createNativeStackNavigator();
@@ -87,6 +88,9 @@ export default function App() {
               </Stack.Screen>
               <Stack.Screen name="Profile">
                 {(props) => <Profile {...props} user={user} options={{ headerShown: false }} />}
+              </Stack.Screen>
+              <Stack.Screen name="GenerateImage">
+                {(props) => <GenerateImage {...props} user={user} options={{ headerShown: false }} />}
               </Stack.Screen>
             </>
           ) : (
