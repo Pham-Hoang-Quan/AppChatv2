@@ -144,7 +144,7 @@ export default function ChatScreen({ user, navigation }) {
                   <>
                     <View style={styles.myMessageContainer}>
                       <Text style={styles.message}>{item.content}</Text>
-                      <MessageText text={item.content} />
+                      {/* <MessageText text={item.content} /> */}
                     </View>
                     <View style={styles.myTimeContainer}>
                       <FontAwesome5Icon name="clock" size={10} color="#66666" style={[styles.myTime]} />
