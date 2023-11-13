@@ -13,14 +13,7 @@ import ip from '../../ipConfig';
 export default function UserListScreen({ user, userList }) {
   const navigation = useNavigation();
 
-  const handleSignOut = async () => {
-    try {
-      await signOut(FIREBASE_AUTH);
-      navigation.navigate('Login');
-    } catch (error) {
-      console.error('Lỗi khi đăng xuất:', error);
-    }
-  };
+  
   // const [userList, setUserList] = useState([]);
   const [userSelected, setUserSelected] = useState(null); // State để lưu user được chọn
 
@@ -92,16 +85,6 @@ export default function UserListScreen({ user, userList }) {
               </TouchableOpacity>
             )}
           />
-        </View>
-        <View style={{ flex: 1 }}>
-          {/* Các phần tử khác ở đây */}
-
-          {/* <TouchableOpacity
-            style={styles.addButton}
-            onPress={handleSwitchScreen}
-          >
-            <Text style={styles.addButtonText}>+</Text>
-          </TouchableOpacity> */}
         </View>
 
       </View>

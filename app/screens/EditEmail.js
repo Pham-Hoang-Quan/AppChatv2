@@ -31,7 +31,7 @@ export default function EditEmail({ user }) {
             console.log(response);
             // alert('Check your email!');
             // Sau khi đăng nhập thành công, điều hướng đến màn hình List
-            navigation.navigate("Home"); // Đảm bảo rằng 'List' là tên màn hình bạn đã định nghĩa trong Stack Navigator của bạn.
+            navigation.navigate('Home'); // Đảm bảo rằng 'List' là tên màn hình bạn đã định nghĩa trong Stack Navigator của bạn.
         } catch (error) {
             console.log(error);
             alert(error)
