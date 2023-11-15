@@ -1,88 +1,121 @@
-import { View, Text, StyleSheet, ImageBackground, TouchableOpacity } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { View, Text, StyleSheet, ImageBackground, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import { FIREBASE_AUTH } from '../../FirebseConfig';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
 import { TextInput } from 'react-native-paper';
+import axios from 'axios'; // Import Axios
+import ip from '../../ipConfig';
 
-
-
-// import { Examples } from '@shoutem/ui';
-
-
-const ChangePassScreen = () => {
+const ChangePassScreen = ({user}) => {
     const [oldPass, setOldPass] = useState('');
     const [newPass, setNewPass] = useState('');
-    const [confirmPass, setConfirmPass] = useState(false);
+    const [confirmPass, setConfirmPass] = useState('');
+    const [userData, setUserData] = useState(null); // Initialize with null
 
     const auth = FIREBASE_AUTH;
-
-    const navigation = useNavigation(); // chuyển màn hình
+    const navigation = useNavigation();
 
     useFocusEffect(() => {
         navigation.setOptions({ title: `Đổi mật khẩu` });
-      });
+    });
 
-    const signIn = async () => {
-        setLoading(true);
-        try {
-            const response = await signInWithEmailAndPassword(auth, email, password);
-            console.log(response);
-            // alert('Check your email!');
-            // Sau khi đăng nhập thành công, điều hướng đến màn hình List
-            navigation.navigate("Home"); // Đảm bảo rằng 'List' là tên màn hình bạn đã định nghĩa trong Stack Navigator của bạn.
-        } catch (error) {
-            console.log(error);
-            alert(error)
-        } finally {
-            setLoading(false);
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const user = auth.currentUser;
+                const response = await axios.get(`http://${ip}:3000/users/${user.uid}`);
+                const data = response.data;
+                setUserData(data);
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        };
+
+        fetchUserData();
+    }, []);
+
+    const handleChangePassword = async () => {
+        if (newPass !== confirmPass) {
+            alert('Mật khẩu xác nhận không khớp.');
+            return;
         }
-    }
 
-    const signUp = async () => {
-        setLoading(true);
         try {
-            const response = await createUserWithEmailAndPassword(auth, email, password);
-            console.log(response);
-            alert('Đăng kí thành công');
+            const user = auth.currentUser;
+
+            // Reauthenticate the user (using email/password as an example)
+            const credential = EmailAuthProvider.credential(user.email, oldPass);
+            await reauthenticateWithCredential(user, credential);
+
+            // Update the password in Firebase Authentication
+            await updatePassword(user, newPass);
+            updatePassInDB();
+            console.log(newPass);
+
+            alert('Đổi mật khẩu thành công!');
         } catch (error) {
-            console.log(error);
-            alert(error);
-        } finally {
-            setLoading(false);
+            console.error(error);
+            alert('Đã xảy ra lỗi khi đổi mật khẩu.');
         }
-    }
+    };
 
-
+    const updatePassInDB = () => {
+        // Gọi API để cập nhật fullname dựa trên user.uid
+        const requestData = {
+        password: newPass,
+        };
+        axios.put(`http://${ip}:3000/users/updatePassword/${user.uid}`, requestData)
+        .then((response) => {
+        console.log('Cập nhật mật khẩu thành công' + newPass);
+        // navigation.navigate('Home');
+        navigation.replace('Home');
+        })
+        .catch((error) => {
+        console.error('Lỗi cập nhật mật khẩu:', error);
+        // Xử lý lỗi và hiển thị thông báo lỗi cho người dùng
+        });
+        };
 
     return (
         <ImageBackground source={require('../../assets/Res.png')} style={styles.containerBackground}>
-
             <View style={styles.container}>
                 <Text style={styles.loginText}>Đổi mật khẩu</Text>
-                <TextInput style={styles.textInput} mode='flat' activeUnderlineColor='#0cc0df'
+                <TextInput
+                    style={styles.textInput}
+                    mode='flat'
+                    activeUnderlineColor='#0cc0df'
                     label="Mật khẩu hiện tại"
-                    onChangeText={(text) => setFullName(text)}
+                    secureTextEntry
+                    onChangeText={(oldPass) => setOldPass(oldPass)}
                 />
-                <TextInput style={styles.textInput} mode='flat' activeUnderlineColor='#0cc0df'
+                <TextInput
+                    style={styles.textInput}
+                    mode='flat'
+                    activeUnderlineColor='#0cc0df'
                     label="Mật khẩu mới"
-                    onChangeText={(text) => setFullName(text)}
+                    secureTextEntry
+                    onChangeText={(newPass) => setNewPass(newPass)}
                 />
-                <TextInput style={styles.textInput} mode='flat' activeUnderlineColor='#0cc0df'
+                <TextInput
+                    style={styles.textInput}
+                    mode='flat'
+                    activeUnderlineColor='#0cc0df'
                     label="Xác nhận mật khẩu"
-                    onChangeText={(text) => setFullName(text)}
+                    secureTextEntry
+                    onChangeText={(confirmPass) => setConfirmPass(confirmPass)}
                 />
                 <TouchableOpacity
                     style={{ backgroundColor: '#0cc0df', padding: 8, borderRadius: 4, alignItems: 'center', marginTop: 20 }}
-                    onPress={signIn}
+                    onPress={handleChangePassword}
                 >
-                <Text style={{ color: 'white', fontSize: 18, fontWeight: 700 }}>Xác nhận</Text>
-                </TouchableOpacity> 
+                    <Text style={{ color: 'white', fontSize: 18, fontWeight: 700 }}>Xác nhận</Text>
+                </TouchableOpacity>
             </View>
         </ImageBackground>
-
     );
 };
+
 export default ChangePassScreen;
 
 const styles = StyleSheet.create({
@@ -97,24 +130,15 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
     },
-    input: {
-        marginVertical: 5,
-        height: 50,
-        borderWidth: 1,
-        borderRadius: 4,
-        padding: 30,
-        backgroundColor: '#fff'
-    },
-    loginText: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        color: '#0cc0df', // Thay thế 'blue' bằng mã màu '#0cc0df'
-        marginBottom: 20,
-    },
     textInput: {
         margin: 10,
         width: 350,
         backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    }
-
-})
+    },
+    loginText: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: '#0cc0df',
+        marginBottom: 20,
+    },
+});

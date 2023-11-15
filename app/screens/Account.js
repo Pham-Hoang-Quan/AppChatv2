@@ -1,25 +1,147 @@
 import React, { useState, useEffect } from 'react';
-import { ImageBackground, View, Text, FlatList, Image, StyleSheet, ScrollView, Button, TouchableOpacity, Modal } from 'react-native';
+import { PermissionsAndroid, ImageBackground, View, Text, FlatList, Image, StyleSheet, ScrollView, Button, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import axios from 'axios';
 import ip from '../../ipConfig';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { getStorage, getDownloadURL, uploadBytes, ref, putFile } from 'firebase/storage';
+
 
 import { Clipboard, Alert } from 'react-native';
 
 import { Avatar, List, Icon, IconButton, MD3Colors, Size } from 'react-native-paper';
 import QRCodeComponenet from '../components/QRCode';
 
+
+
+
 export default function Account({ user }) {
 
     const navigation = useNavigation();
     const [userData, setUserData] = useState([]);
-    const [isModalVisible, setModalVisible] = useState(false);
+
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isAvatarCamera, setIsAvatarCamera] = useState(false);
+    const [isSeeAVT, setSeeAVT] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+
     const toggleModal = () => {
-        setModalVisible(!isModalVisible);
+        setIsModalVisible(!isModalVisible);
+    };
+    const avatarCamera = () => {
+        setIsAvatarCamera(!isAvatarCamera);
+    };
+    const seeAVT = () => {
+        setSeeAVT(!isSeeAVT);
     };
 
-    
+    const storage = getStorage();
+    const [img, setImg] = useState('');
+
+    //mở máy ảnh 
+    const requestCameraPermission = async () => {
+        try {
+            setLoading(true); // Bắt đầu tải ảnh
+            const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA);
+            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                console.log("oK");
+                const result = await launchCamera({ mediaType: 'photo', cameraType: 'front' })
+                // setImg(result.assets[0].uri);
+                // console.log(result.assets[0].uri);
+                // setImg(result.assets[0].uri);
+                if (result.assets.length > 0) {
+                    console.log(result.assets[0].uri);
+                    const imageUrl = await uploadimageAsync(result.assets[0].uri)
+                    setImg(imageUrl);
+                    console.log('Tải ảnh lên thành công. URL:', imageUrl);
+                } else {
+                    console.log('Không có ảnh được chọn');
+                }
+            } else {
+                console.log("từ chối");
+            }
+        } catch (err) {
+            console.warn(err);
+        } finally {
+            setLoading(false); // Kết thúc quá trình tải ảnh
+        }
+    };
+    //mở thư viện ảnh
+    const handleOpenImageLibrary = async () => {
+        try {
+            setLoading(true); // Bắt đầu tải ảnh
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.CAMERA
+            );
+            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                const result = await launchImageLibrary({ mediaType: 'photo' });
+                if (result.assets.length > 0) {
+                    console.log(result.assets[0].uri);
+                    const imageUrl = await uploadimageAsync(result.assets[0].uri)
+
+                    setImg(imageUrl);
+
+                    console.log('Tải ảnh lên thành công. URL:', imageUrl);
+                    return imageUrl;
+                } else {
+                    console.log('Không có ảnh được chọn');
+                }
+            } else {
+                console.log('Từ chối quyền truy cập camera');
+            }
+        } catch (error) {
+            console.error('Lỗi xử lý thư viện ảnh:', error);
+        } finally {
+            setLoading(false); // Kết thúc quá trình tải ảnh
+        }
+    };
+    //  cập nhật avt
+
+    const updateAVT = () => {
+        // Gọi API để cập nhật fullname dựa trên user.uid
+        const requestData = {
+            avatarUrl: img,
+        };
+
+        axios.put(`http://${ip}:3000/users/updateAvatarUrl/${user.user.uid}`, requestData)
+            .then((response) => {
+                console.log('Cập nhật avt  thành công' + img);
+                // navigation.navigate('Home');
+                navigation.navigate('Home', { user: user });
+            })
+            .catch((error) => {
+                console.error('Lỗi cập nhật avt:', error);
+                // Xử lý lỗi và hiển thị thông báo lỗi cho người dùng
+            });
+    };
+
+    //upload ảnh
+    const uploadimageAsync = async (uri) => {
+        const blob = await new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.onload = function () {
+                resolve(xhr.response);
+            };
+            xhr.onerror = function (e) {
+                console.log(e);
+                reject(new TypeError("Netword request failed"));
+            };
+            xhr.responseType = "blob";
+            xhr.open("GET", uri, true);
+            xhr.send(null);
+        });
+        try {
+            const storageRef = ref(storage, `Images/imagesAvt/${Date.now()}`);
+            const result = await uploadBytes(storageRef, blob);
+            blob.close();
+            return await getDownloadURL(storageRef);
+        } catch (error) {
+            alert(`Error uploading : ${error}`);
+        }
+    }
+
 
     useEffect(() => {
         axios.get(`http://${ip}:3000/users/${user.user.uid}`)
@@ -31,20 +153,6 @@ export default function Account({ user }) {
                 console.error('Error fetching data:', error);
             });
     }, []);
-
-    // Tùy chỉnh thanh điều hướng
-    // React.useLayoutEffect(() => {
-    //     navigation.setOptions({
-    //         title: 'Trang cá nhân',
-    //         headerStyle: {
-    //             backgroundColor: '#f2f2f2',
-    //         },
-    //         headerTintColor: '#333',
-    //         headerTitleStyle: {
-    //             fontWeight: 'bold',
-    //         },
-    //     });
-    // }, [navigation]);
 
     //xử lý nút sao chép id
     const handleCopyToClipboard = async (text) => {
@@ -64,6 +172,9 @@ export default function Account({ user }) {
 
 
 
+
+
+
     return (
         <ImageBackground source={require('../../assets/Res.png')} style={styles.containerBackground}>
             <ScrollView>
@@ -71,15 +182,74 @@ export default function Account({ user }) {
                     {userData.map((item, index) => (
                         <View key={index}>
                             <View style={styles.avatarContainer}>
-                                <Image
+                            <TouchableOpacity onPress={seeAVT}>
+                                <Image 
                                     source={{ uri: item.avatarUrl }}
                                     style={styles.avatar}
                                 />
+                                  </TouchableOpacity>
                                 <View style={styles.iconContainer}>
                                     <TouchableOpacity onPress={toggleModal}>
                                         <FontAwesome5Icon name="camera" style={styles.camera} />
                                     </TouchableOpacity>
                                 </View>
+
+                                <Modal
+                                    transparent={true}
+                                    animationType="slide"
+                                    visible={isAvatarCamera}
+                                    onRequestClose={avatarCamera} // Đặt onRequestClose cho việc tắt modal khi bấm nút back
+                                >
+                                    <View style={styles.modal}>
+                                        <View style={styles.modalContent}>
+                                            {loading && <ActivityIndicator size="large" />}
+                                            {img != '' ?
+
+                                                (
+                                                    <Image
+                                                        source={{ uri: img }}
+                                                        style={styles.avatarCamera}
+                                                    />) : ''
+                                            }
+                                            <TouchableOpacity>
+                                                <Text style={styles.modalOption} onPress={() => {
+                                                    updateAVT();
+                                                    avatarCamera();
+                                                }}
+                                                >Cập Nhật</Text>
+                                            </TouchableOpacity>
+                                            <Text style={{ backgroundColor: '#EDE4FF', fontSize: 0.5, borderRadius: 5 }} />
+                                            <TouchableOpacity onPress={() => avatarCamera()}>
+                                                <Text style={styles.modalOption}>Hủy</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                </Modal>
+
+                                {/* xem avt */}
+                                <Modal
+                                    transparent={true}
+                                    animationType="slide"
+                                    visible={isSeeAVT}
+                                    onRequestClose={seeAVT} // Đặt onRequestClose cho việc tắt modal khi bấm nút back
+                                >
+                                    <View style={styles.modal}>
+                                        <View style={styles.modalContent}>
+                                            <Image
+                                                source={{ uri: item.avatarUrl }}
+                                                style={styles.avatarCamera}
+                                            />
+                                            <Text style={{ backgroundColor: '#EDE4FF', fontSize: 0.5, borderRadius: 5 }} />
+                                            <TouchableOpacity onPress={seeAVT} style = {styles.closeButton}>
+                                                {/* <Text style={styles.modalOption}>Hủy</Text> */}
+                                                <FontAwesome5Icon name="times" size={24} color="gray"/>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                </Modal>
+
+                                {/* // */}
+
                                 <Modal
                                     transparent={true}
                                     animationType="slide"
@@ -88,25 +258,46 @@ export default function Account({ user }) {
                                 >
                                     <View style={styles.modal}>
                                         <View style={styles.modalContent}>
-                                            <TouchableOpacity >
-                                                <Text style={styles.modalOption}>Chụp ảnh</Text>
+                                            <TouchableOpacity>
+                                                <Text style={styles.modalOption} onPress={() => {
+                                                    requestCameraPermission();
+                                                    toggleModal();
+                                                    avatarCamera();
+                                                }}
+                                                >Chụp ảnh</Text>
                                             </TouchableOpacity>
                                             <Text style={{ backgroundColor: '#EDE4FF', fontSize: 0.5, borderRadius: 5 }} />
-                                            <TouchableOpacity >
-                                                <Text style={styles.modalOption}>Chọn từ thư viện</Text>
+                                            <TouchableOpacity>
+                                                <Text style={styles.modalOption} onPress={() => {
+                                                    handleOpenImageLibrary(); // Gọi hàm để chọn ảnh từ thư viện
+                                                    toggleModal(); // Gọi hàm để tắt modal
+                                                    avatarCamera();//
+                                                }}>
+                                                    Chọn từ thư viện
+                                                </Text>
                                             </TouchableOpacity>
                                             <Text style={{ backgroundColor: '#EDE4FF', fontSize: 0.5, borderRadius: 5 }} />
-                                            <TouchableOpacity >
-                                                <Text style={styles.modalOption} onPress={() => navigation.navigate('GenerateImage')} >Tạo ảnh bằng AI</Text>
+                                            <TouchableOpacity onPress={seeAVT} >
+                                                <Text style={styles.modalOption} onPress={() => {
+                                                    navigation.navigate('GenerateImage');
+                                
+                                                }}>
+                                                    Tạo ảnh bằng AI
+                                                </Text>
                                             </TouchableOpacity>
                                             <Text style={{ backgroundColor: '#EDE4FF', fontSize: 0.5, borderRadius: 5 }} />
-
-                                            <TouchableOpacity >
-                                                <Text style={styles.modalOption}>Xem ảnh</Text>
+                                            <TouchableOpacity onPress={seeAVT} >
+                                                <Text style={styles.modalOption} onPress={() => {
+                                                    seeAVT(); // Gọi hàm để chọn ảnh từ thư viện
+                                                    toggleModal(); // Gọi hàm để tắt modal
+                                                  
+                                                }}>
+                                                    Xem ảnh
+                                                </Text>
                                             </TouchableOpacity>
                                             <Text style={{ backgroundColor: '#EDE4FF', fontSize: 0.5, borderRadius: 5 }} />
-                                            <TouchableOpacity >
-                                                <Text style={{ ...styles.modalOption, color: 'gray', }} onPress={toggleModal}>Hủy</Text>
+                                            <TouchableOpacity>
+                                                <Text style={{ ...styles.modalOption, color: 'gray' }} onPress={toggleModal}>Hủy</Text>
                                             </TouchableOpacity>
                                         </View>
                                     </View>
@@ -137,7 +328,7 @@ export default function Account({ user }) {
                                 description={
                                     <View style={styles.descriptionContainer}>
                                         <Text style={styles.descriptionText}>{item.email}</Text>
-                                        <FontAwesome5Icon name="edit" onPress={() => navigation.navigate('EditEmail')} style={styles.callIcon} />
+                                        {/* <FontAwesome5Icon name="edit" onPress={() => navigation.navigate('EditEmail')} style={styles.callIcon} /> */}
                                     </View>
                                 }
                                 left={props => <List.Icon  {...props} icon="email" />}
@@ -207,11 +398,11 @@ const styles = StyleSheet.create({
     },
     iconContainer: {
         position: 'absolute',
-        top: 90, // Điều chỉnh vị trí của biểu tượng trên ảnh
-        right: 160,
+        top: '75%', // Điều chỉnh vị trí của biểu tượng trên ảnh
+        right: '40%',
     },
     copyIcon: {
-        
+
         fontSize: 14,
         // color: 'gray',
     },
@@ -257,9 +448,9 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     modalContent: {
-        width: 200,
+        width: 250,
         backgroundColor: 'white',
-        padding: 10,
+        padding: 20,
         borderRadius: 10,
 
 
@@ -270,6 +461,13 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
 
     },
+    avatarCamera: {
+        height: 210,
+        width: 210,
+        alignSelf: 'center',
+        borderRadius: 10,
+
+    },
     logoStyle: {
         height: 32,
         width: 32,
@@ -278,5 +476,10 @@ const styles = StyleSheet.create({
     iconStyle: {
         fontSize: 22,
         // color: '#89C4E1',
+    },
+    closeButton: {
+        position: 'absolute',
+        top: 0,
+        right: 5,
     },
 });
