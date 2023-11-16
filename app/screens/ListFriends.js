@@ -11,6 +11,7 @@ import axios from 'axios';
 import SearchUserList from '../components/SearchUserList';
 import CardFriend from '../components/CardFriend';
 import QRCodeComponenet from '../components/QRCode';
+import LinkPreview from '../components/LinkPreview';
 
 
 export default function ListFriends({ user, userList }) {
@@ -103,7 +104,7 @@ export default function ListFriends({ user, userList }) {
                     />
 
                 </View>
-
+                <LinkPreview></LinkPreview>
             </View>
         </ImageBackground>
 

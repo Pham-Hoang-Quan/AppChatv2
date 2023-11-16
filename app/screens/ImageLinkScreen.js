@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useWindowDimensions } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import ListImageScreen from '../components/ListImageScreen';
 import ListLinkScreen from '../components/ListLinkScreen';
 
@@ -16,15 +16,19 @@ const renderTabBar = props => (
 );
 
 export default function ImageLinkScreen(user) {
+
+    const route = useRoute();
+    const { imageMess, linkMess } = route.params;
+
     const layout = useWindowDimensions();
     const [index, setIndex] = React.useState(0);
     const [routes] = React.useState([
         { key: 'first', title: 'Hình ảnh' },
         { key: 'second', title: 'Liên kết' },
     ]);
-    const ImageRoute = () => <ListImageScreen user={user}  ></ListImageScreen>;
+    const ImageRoute = () => <ListImageScreen user={user} imageMess={imageMess}></ListImageScreen>;
 
-    const LinkRoute = () => <ListLinkScreen user={user}></ListLinkScreen>;
+    const LinkRoute = () => <ListLinkScreen user={user} linkMess={linkMess}></ListLinkScreen>;
 
     const renderScene = SceneMap({
         first: ImageRoute,
@@ -32,6 +36,8 @@ export default function ImageLinkScreen(user) {
     });
 
     const navigation = useNavigation();
+
+    
 
     React.useLayoutEffect(() => {
         navigation.setOptions({

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { ImageBackground, View, Text, StyleSheet, Image, Dimensions, FlatList, ScrollView } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import { Avatar, List } from 'react-native-paper';
 import axios from 'axios';
 import ip from '../../ipConfig';
 
 export default function ListImageScreen({ user }) {
+    const route = useRoute();
+    const { imageMess } = route.params;
     const navigation = useNavigation();
     const [userData, setUserData] = useState([]);
 
@@ -25,7 +27,7 @@ export default function ListImageScreen({ user }) {
         { id: '13', uri: 'https://i.pinimg.com/564x/b2/d3/de/b2d3def85411a274736046f92025e1a7.jpg' },
         { id: '14', uri: 'https://i.pinimg.com/564x/9f/90/6b/9f906b3a12d4716d893f8200f783591d.jpg' },
         { id: '15', uri: 'https://i.pinimg.com/564x/94/87/78/948778676f17ac86b20d619f61c19932.jpg' },
-        ]
+    ]
 
     useFocusEffect(() => {
         navigation.setOptions({ title: `` });
@@ -52,12 +54,19 @@ export default function ListImageScreen({ user }) {
             <View style={styles.container}>
                 <View>
                     <View style={styles.imageArea}>
-                        <FlatList
+                    <FlatList
+                        data={imageMess}
+                        renderItem={({ item }) => (
+                            <Image source={{ uri: item }} style={styles.image} />
+                        )}
+                        numColumns={3}
+                    />
+                        {/* <FlatList
                             data={imageData}
                             renderItem={renderImageItem}
                             keyExtractor={(item) => item.id}
                             numColumns={3}
-                        />
+                        /> */}
                     </View>
                 </View>
             </View>
@@ -94,8 +103,8 @@ const styles = StyleSheet.create({
     },
     image: {
         // borderRadius: 20,
-        width: 145,
-        height: 145,
+        width: 135,
+        height: 135,
         margin: 2,
     },
     icon: {
@@ -155,8 +164,8 @@ const styles = StyleSheet.create({
     },
     imageArea: {
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        // alignItems: 'center',
+        // justifyContent: 'center',
     }
 
 });

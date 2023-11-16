@@ -7,7 +7,7 @@ import { TextInput } from 'react-native-paper';
 import axios from 'axios'; // Import Axios
 import ip from '../../ipConfig';
 
-const ChangePassScreen = ({user}) => {
+const ChangePassScreen = ({ user }) => {
     const [oldPass, setOldPass] = useState('');
     const [newPass, setNewPass] = useState('');
     const [confirmPass, setConfirmPass] = useState('');
@@ -63,19 +63,19 @@ const ChangePassScreen = ({user}) => {
     const updatePassInDB = () => {
         // Gọi API để cập nhật fullname dựa trên user.uid
         const requestData = {
-        password: newPass,
+            password: newPass,
         };
         axios.put(`http://${ip}:3000/users/updatePassword/${user.uid}`, requestData)
-        .then((response) => {
-        console.log('Cập nhật mật khẩu thành công' + newPass);
-        // navigation.navigate('Home');
-        navigation.replace('Home');
-        })
-        .catch((error) => {
-        console.error('Lỗi cập nhật mật khẩu:', error);
-        // Xử lý lỗi và hiển thị thông báo lỗi cho người dùng
-        });
-        };
+            .then((response) => {
+                console.log('Cập nhật mật khẩu thành công' + newPass);
+                // navigation.navigate('Home');
+                navigation.replace('Home');
+            })
+            .catch((error) => {
+                console.error('Lỗi cập nhật mật khẩu:', error);
+                // Xử lý lỗi và hiển thị thông báo lỗi cho người dùng
+            });
+    };
 
     return (
         <ImageBackground source={require('../../assets/Res.png')} style={styles.containerBackground}>
@@ -107,7 +107,7 @@ const ChangePassScreen = ({user}) => {
                 />
                 <TouchableOpacity
                     style={{ backgroundColor: '#0cc0df', padding: 8, borderRadius: 4, alignItems: 'center', marginTop: 20 }}
-                    onPress={handleChangePassword}
+                    onPress={() => handleChangePassword()}
                 >
                     <Text style={{ color: 'white', fontSize: 18, fontWeight: 700 }}>Xác nhận</Text>
                 </TouchableOpacity>
