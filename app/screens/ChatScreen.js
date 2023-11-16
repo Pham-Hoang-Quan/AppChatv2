@@ -15,6 +15,7 @@ import axios from 'axios';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import ip from '../../ipConfig';
 import { useFocusEffect } from '@react-navigation/native';
+import LinkPreview from '../components/LinkPreview';
 
 
 export default function ChatScreen({ user, navigation }) {
@@ -27,16 +28,13 @@ export default function ChatScreen({ user, navigation }) {
   const [myInfo, setMyInfo] = useState([]);
   const [sender, setSender] = useState([]);
 
-
-
-
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
         <>
           <FontAwesome5Icon name="phone-alt" style={styles.callIcon} />
           <FontAwesome5Icon name="video" style={styles.videoIcon} />
-          <FontAwesome5Icon name="info-circle" style={styles.infoIcon} onPress={() => { navigation.navigate('ChatInfor') }} />
+          <FontAwesome5Icon name="info-circle" style={styles.infoIcon} onPress={() => { navigation.navigate('ChatInfor', { userSelected: userSelected }) }} />
         </>
       ),
       headerLeft: () => (
@@ -283,7 +281,10 @@ export default function ChatScreen({ user, navigation }) {
                         />
                         )
                         :
-                        (<Text style={styles.message}>{item.content}</Text>)
+                        (
+                        // <Text style={styles.message}>{item.content}</Text>
+                        <LinkPreview url={item.content}></LinkPreview>
+                        )
                       }
 
                     </View>
@@ -303,7 +304,12 @@ export default function ChatScreen({ user, navigation }) {
                             style={styles.imgContent} />
                           )
                           :
-                          (<Text style={styles.message}>{item.content}</Text>)
+                          (
+                            <>
+                            <Text style={styles.message}>{item.content}</Text>
+                            {/* <LinkPreview url={item.content}></LinkPreview> */}
+                            </>
+                          )
                         }
                       </View>
                     </View>
@@ -468,7 +474,7 @@ const styles = StyleSheet.create({
   listMess: {
     flex: 0,
     height: '100%',
-    marginBottom: 0,
+    marginBottom: 8,
     paddingBottom: 40,
     backgroundColor: '#DFF6FF'
   },
@@ -482,3 +488,4 @@ const styles = StyleSheet.create({
     width: 200,
   },
 });
+

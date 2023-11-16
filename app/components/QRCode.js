@@ -7,7 +7,7 @@ const QRCodeComponenet = ({ qrcode_url }) => {
     <View style={styles.container}>
       <QRCode
         value={qrcode_url}
-        size={250}
+        size={200}
       />
     </View>
   );

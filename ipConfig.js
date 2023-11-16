@@ -1,2 +1,2 @@
-const ip = '192.168.1.115';
+const ip = 'localhost';
 export default ip;

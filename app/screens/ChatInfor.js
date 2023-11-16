@@ -1,16 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { ImageBackground, View, Text, StyleSheet, Image, Dimensions, FlatList, ScrollView } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import { Avatar, List } from 'react-native-paper';
 import axios from 'axios';
 import ip from '../../ipConfig';
+import Linker from '../components/Linker';
 
 export default function ChatInfor({ user }) {
+
+    const route = useRoute();
+    const { userSelected } = route.params;
+    const [messages, setMessages] = useState([]);
     const navigation = useNavigation();
     const [userData, setUserData] = useState([]);
+    const [imageMess, setImageMess] = useState([]);
+    const [linkMess, setLinkMess] = useState([]);
+
+    let ImageMess = [];
 
     const more = async () => {
-        navigation.navigate('ImageLinkScreen');
+        navigation.navigate('ImageLinkScreen', {imageMess: imageMess, linkMess: linkMess});
     };
 
     const imageData = [
@@ -20,8 +29,6 @@ export default function ChatInfor({ user }) {
         { id: '4', uri: 'https://i.pinimg.com/564x/b2/d3/de/b2d3def85411a274736046f92025e1a7.jpg' },
         { id: '5', uri: 'https://i.pinimg.com/564x/9f/90/6b/9f906b3a12d4716d893f8200f783591d.jpg' },
         { id: '6', uri: 'https://i.pinimg.com/564x/94/87/78/948778676f17ac86b20d619f61c19932.jpg' },
-
-
     ]
 
     useFocusEffect(() => {
@@ -29,31 +36,61 @@ export default function ChatInfor({ user }) {
     });
 
     useEffect(() => {
-        axios.get(`http://${ip}:3000/users/${user.uid}`)
-          .then((response) => {
-            const data = response.data;
-            setUserData(data);
-          })
-          .catch((error) => {
-            console.error('Error fetching data:', error);
-          });
-      }, []);
+        console.log("userSelected", userSelected);
+
+        // Gọi API để lấy danh sách người dùng đã nhắn tin với người dùng hiện tại
+        axios.get(`http://${ip}:3000/messages/${user.uid}/${userSelected.userId}`)
+            .then((response) => {
+                const data = response.data;
+                setMessages(data);
+                console.log(data);
+            })
+            .catch((error) => {
+                console.error('Lỗi khi lấy danh sách người dùng:', error);
+            });
+    }, [userSelected]);
+
+    useEffect(() => {
+        const filterMess = messages
+            .filter(message => typeof message.content === 'string' && message.content.startsWith('https://firebasestorage.googleapis.com'))
+            .map(imageMessage => imageMessage.content);
+
+        setImageMess(filterMess);
+        console.log("FilteredMess:", filterMess);
+    }, [messages]);
+
+    const isLink = (text) => {
+        // Regular expression to match URLs excluding Firebase storage URLs
+        const urlRegex = /(https?:\/\/(?!firebasestorage\.googleapis\.com)[^\s]+)/;
+      
+        // Check if the text contains a URL
+        return urlRegex.test(text);
+      };
+    useEffect(() => {
+        const filterMess = messages
+            .filter(message => typeof message.content === 'string' && isLink(message.content))
+            .map(imageMessage => imageMessage.content);
+        setLinkMess(filterMess);
+        console.log("FilteredMessLink:", filterMess);
+    }, [messages]);
 
 
     const renderImageItem = ({ item }) => (
         <Image source={{ uri: item.uri }} style={styles.image} />
     );
+    const limitedImageMess = imageMess.slice(0, 5);
+    if (imageMess.length > 5) {
+        limitedImageMess.unshift({ uri: 'https://i.pinimg.com/564x/67/57/a8/6757a86e137bef313d80c281cea4f0d9.jpg' });
+    }
 
     return (
         <ImageBackground source={require('../../assets/Res.png')} style={styles.containerBackground}>
             <View style={styles.container}>
                 <View>
-                    {userData.map((item, index) => (
-                        <View key={index} style={styles.center}>
-                            <Avatar.Image style={styles.avatarSetting} size={80} source={{ uri: item.avatarUrl }} />
-                            <Text style={styles.text}>{item.fullName}</Text>
-                        </View>
-                    ))}
+                    <View style={styles.center}>
+                        <Avatar.Image style={styles.avatarSetting} size={80} source={{ uri: userSelected.avatarUrl }} />
+                        <Text style={styles.text}>{userSelected.fullName}</Text>
+                    </View>
 
                     <View style={styles.groupIcon}>
                         <View style={styles.icon}>
@@ -75,11 +112,18 @@ export default function ChatInfor({ user }) {
                 </View>
                 <View style={styles.imageArea}>
                     <FlatList
+                        data={imageMess.slice(0, 6)}
+                        renderItem={({ item }) => (
+                            <Image source={{ uri: item }} style={styles.image} />
+                        )}
+                        numColumns={3}
+                    />
+                    {/* <FlatList
                         data={imageData}
                         renderItem={renderImageItem}
                         keyExtractor={(item) => item.id}
                         numColumns={3}
-                    />
+                    /> */}
                 </View>
                 <View style={styles.groupTitle}>
                     <Text style={styles.title}>Liên kết</Text>
@@ -88,36 +132,27 @@ export default function ChatInfor({ user }) {
                     </View>
                 </View>
                 <View>
-                    <View style={styles.groupLink}>
-                        <List.Icon icon="link" color='white' style={styles.icon1} />
-                        <Text
-                            style={styles.groupText}
-                            numberOfLines={1}  // Số dòng tối đa
-                            ellipsizeMode="tail" // Hiển thị "..." khi quá giới hạn chiều rộng
-                        >
-                            https://www.pinterest.com/pin/1105774514739081239cdddddddddđ
-                        </Text>
+                    <View style={styles.imageArea}>
+                        <FlatList
+                            data={linkMess.slice(0, 4)}
+                            renderItem={({ item }) => (
+                                <View style={styles.groupLink}>
+                                    <List.Icon icon="link" color='white' style={styles.icon1} />
+                                    {/* <Text
+                                        style={styles.groupText}
+                                        numberOfLines={1}  // Số dòng tối đa
+                                        ellipsizeMode="tail" // Hiển thị "..." khi quá giới hạn chiều rộng
+                                    >
+                                        {item}
+                                    </Text> */}
+                                    <Linker link={item}></Linker>
+                                </View>
+                            )}
+                            numColumns={1}
+                        />
+
                     </View>
-                    <View style={styles.groupLink}>
-                        <List.Icon icon="link" color='white' style={styles.icon1} />
-                        <Text
-                            style={styles.groupText}
-                            numberOfLines={1}  // Số dòng tối đa
-                            ellipsizeMode="tail" // Hiển thị "..." khi quá giới hạn chiều rộng
-                        >
-                            https://www.pinterest.com/pin/1105774514739081239cdddddddddđ
-                        </Text>
-                    </View>
-                    <View style={styles.groupLink} >
-                        <List.Icon icon="link" color='white' style={styles.icon1} />
-                        <Text
-                            style={styles.groupText}
-                            numberOfLines={1}  // Số dòng tối đa
-                            ellipsizeMode="tail" // Hiển thị "..." khi quá giới hạn chiều rộng
-                        >
-                            https://www.pinterest.com/pin/1105774514739081239cdddddddddđ
-                        </Text>
-                    </View>
+                    
 
                 </View>
 
@@ -176,7 +211,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginTop: 10,
         marginBottom: 5,
-        marginLeft: 45,
+        marginLeft: 10,
+        marginRight: 10,
         width: 45,
         height: 45,
         borderRadius: 50,
@@ -213,12 +249,13 @@ const styles = StyleSheet.create({
     groupLink: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginRight: 45,
+        marginRight: 20,
     },
     imageArea: {
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        marginLeft: 15
+        // alignItems: 'center',
+        // justifyContent: 'center',
     }
 
 });
