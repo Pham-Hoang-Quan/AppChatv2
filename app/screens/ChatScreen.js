@@ -16,6 +16,10 @@ import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import ip from '../../ipConfig';
 import { useFocusEffect } from '@react-navigation/native';
 import LinkPreview from '../components/LinkPreview';
+import { Tooltip } from '@rneui/themed';
+import { Divider } from '@rneui/themed';
+
+import { Drawer, List } from 'react-native-paper';
 
 
 export default function ChatScreen({ user, navigation }) {
@@ -27,6 +31,7 @@ export default function ChatScreen({ user, navigation }) {
   const storage = getStorage();
   const [myInfo, setMyInfo] = useState([]);
   const [sender, setSender] = useState([]);
+  const [open, setOpen] = React.useState(false);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -94,12 +99,14 @@ export default function ChatScreen({ user, navigation }) {
       return;
     }
     console.log(user.uid + userSelected.userId + messages)
+    // Mã hóa nội dung tin nhắn
+    const encodedMessage = encodeURIComponent(message);
     try {
       // Tạo một tin nhắn mới trong cơ sở dữ liệu hoặc gửi thông tin lên API của bạn
       const response = await axios.post(`http://${ip}:3000/messages`, {
         sender_id: user.uid,
         receiver_id: userSelected.userId,
-        content: message,
+        content: encodedMessage,
       });
       // Xóa nội dung tin nhắn trong ô nhập
       setMessage('');
@@ -282,8 +289,8 @@ export default function ChatScreen({ user, navigation }) {
                         )
                         :
                         (
-                        // <Text style={styles.message}>{item.content}</Text>
-                        <LinkPreview url={item.content}></LinkPreview>
+                          // <Text style={styles.message}>{item.content}</Text>
+                          <LinkPreview url={decodeURIComponent(item.content)}></LinkPreview>
                         )
                       }
 
@@ -306,8 +313,8 @@ export default function ChatScreen({ user, navigation }) {
                           :
                           (
                             <>
-                            <Text style={styles.message}>{item.content}</Text>
-                            {/* <LinkPreview url={item.content}></LinkPreview> */}
+                              {/* <Text style={styles.message}>{item.content}</Text> */}
+                              <LinkPreview url={decodeURIComponent(item.content)}></LinkPreview>
                             </>
                           )
                         }
@@ -329,7 +336,38 @@ export default function ChatScreen({ user, navigation }) {
               }}>
                 Chọn từ thư viện
               </Text> */}
-            <FontAwesome5Icon name="images" onPress={handleOpenImageLibrary} size={24} color="#0cc0df" style={styles.picIcon} />
+            <Tooltip
+              overlayColor={'#00000073'}
+              height={150}
+              backgroundColor={'#CAF0F8'}
+              visible={open}
+              onOpen={() => setOpen(true)}
+              onClose={() => setOpen(false)}
+              popover={
+                <View>
+                  <List.Item
+                    title="Vị trí"
+                    left={props => <List.Icon {...props} icon="map-marker" />}
+                    onPress={() => { }}
+                  />
+                  <Divider />
+                  <List.Item
+                    title="Chụp ảnh"
+                    left={props => <List.Icon {...props} icon="camera" />}
+                    onPress={requestCameraPermission}
+                  />
+                  <Divider />
+                  <List.Item
+                    title="Gửi ảnh"
+                    left={props => <List.Icon {...props} icon="image" />}
+                    onPress={handleOpenImageLibrary}
+                  />
+                </View>
+              }
+            >
+              <FontAwesome5Icon name="plus-circle" size={24} color="#0cc0df" style={styles.picIcon} />
+            </Tooltip>
+            {/* <FontAwesome5Icon name="images" onPress={handleOpenImageLibrary} size={24} color="#0cc0df" style={styles.picIcon} /> */}
             <FontAwesome5Icon name="smile" onPress={requestCameraPermission} size={24} color="#0cc0df" style={styles.icon} />
             <TextInput
               style={styles.input}

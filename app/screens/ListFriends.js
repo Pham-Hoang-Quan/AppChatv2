@@ -10,8 +10,8 @@ import axios from 'axios';
 
 import SearchUserList from '../components/SearchUserList';
 import CardFriend from '../components/CardFriend';
-import QRCodeComponenet from '../components/QRCode';
-import LinkPreview from '../components/LinkPreview';
+import { Picker } from 'emoji-mart-native'
+
 
 
 export default function ListFriends({ user, userList }) {
@@ -87,9 +87,9 @@ export default function ListFriends({ user, userList }) {
             <View style={styles.container}>
                 <View style={styles.listContainer}>
                     <SearchUserList></SearchUserList>
-                    <View style = {styles.headerContainer} >
+                    <View style={styles.headerContainer} >
                         <Text style={styles.textDSBB}>Danh sách bạn bè</Text>
-                        <Text style={styles.textSeeMore} onPress={() => {navigation.navigate('QRCodeScanner')}} >Xem thêm</Text>
+                        <Text style={styles.textSeeMore} onPress={() => { navigation.navigate('QRCodeScanner') }} >Xem thêm</Text>
                     </View>
 
                     <FlatList
@@ -104,7 +104,7 @@ export default function ListFriends({ user, userList }) {
                     />
 
                 </View>
-                <LinkPreview></LinkPreview>
+                
             </View>
         </ImageBackground>
 
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
     headerContainer: {
         marginLeft: 20,
         marginTop: 10,
-        flexDirection: 'row', 
+        flexDirection: 'row',
         justifyContent: 'space-between'
     },
 
@@ -213,6 +213,6 @@ const styles = StyleSheet.create({
     textSeeMore: {
         color: '#1363DF',
         marginRight: 20,
-        marginTop:5,
+        marginTop: 5,
     },
 });
