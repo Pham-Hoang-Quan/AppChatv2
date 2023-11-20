@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PermissionsAndroid, View, Text, FlatList, TextInput, Button, StyleSheet, ImageBackground, Image, ActivityIndicator } from 'react-native';
 import { set, push, update, get, onChildAdded } from 'firebase/database';
 import { FIREBASE_DATABASE } from '../../FirebseConfig';
@@ -20,6 +20,7 @@ import { Tooltip } from '@rneui/themed';
 import { Divider } from '@rneui/themed';
 
 import { Drawer, List } from 'react-native-paper';
+import MapsMess from '../components/MapsMess';
 
 
 export default function ChatScreen({ user, navigation }) {
@@ -32,6 +33,19 @@ export default function ChatScreen({ user, navigation }) {
   const [myInfo, setMyInfo] = useState([]);
   const [sender, setSender] = useState([]);
   const [open, setOpen] = React.useState(false);
+
+  //hàm kiểm tra một tin nhắn có phải là link hay không
+  const isLink = (text) => {
+    // Regular expression to match URLs excluding Firebase storage URLs
+    const urlRegex = /(https?:\/\/(?!firebasestorage\.googleapis\.com)[^\s]+)|(www\.[^\s]+)|([^\s]+\.[^\s]+)/;
+
+    // Check if the text contains a URL
+    return urlRegex.test(text);
+  };
+
+  const isMaps = (text) => {
+    return text.includes('/maps?');
+  };
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -93,6 +107,13 @@ export default function ChatScreen({ user, navigation }) {
 
   }, []);
 
+  const flatListRef = useRef();
+
+  useEffect(() => {
+    // Scroll to the end when component is mounted
+    flatListRef.current.scrollToEnd({ animated: true });
+  }, []);
+
 
   const handleSendMessage = async () => {
     if (message.trim() === '') {
@@ -139,6 +160,7 @@ export default function ChatScreen({ user, navigation }) {
 
   //mở thư viện ảnh
   const handleOpenImageLibrary = async () => {
+    setOpen(false)
     try {
 
       const granted = await PermissionsAndroid.request(
@@ -192,6 +214,7 @@ export default function ChatScreen({ user, navigation }) {
 
   //mở máy ảnh 
   const requestCameraPermission = async () => {
+    setOpen(false)
     try {
 
       const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA);
@@ -272,6 +295,7 @@ export default function ChatScreen({ user, navigation }) {
         style={styles.listMess}>
         <View style={styles.listMess}>
           <FlatList
+            ref={flatListRef}
             data={messages}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item }) => (
@@ -280,20 +304,18 @@ export default function ChatScreen({ user, navigation }) {
                   <>
                     <View style={styles.myMessageContainer}>
 
-                      {item.content.includes('/Images%') ?
-                        (<Image
+                      {item.content.includes('/Images%') ? (
+                        <Image
                           source={{ uri: item.content }}
                           style={styles.imgContent}
-                        // resizeMode="contain"
                         />
-                        )
-                        :
-                        (
-                          // <Text style={styles.message}>{item.content}</Text>
-                          <LinkPreview url={decodeURIComponent(item.content)}></LinkPreview>
-                        )
-                      }
-
+                      ) : isMaps(item.content) ? (
+                        <MapsMess url={item.content}></MapsMess>
+                      ) : isLink(item.content) ? (
+                        <LinkPreview url={decodeURIComponent(item.content)} />
+                      ) : (
+                        <Text style={styles.message} >{item.content}</Text>
+                      )}
                     </View>
                     <View style={styles.myTimeContainer}>
                       <FontAwesome5Icon name="clock" size={10} color="#66666" style={[styles.myTime]} />
@@ -305,24 +327,26 @@ export default function ChatScreen({ user, navigation }) {
                     <View style={styles.messageContainer}>
                       <AvtChatScreen url={userSelected.avatarUrl}></AvtChatScreen>
                       <View style={styles.theirMessageContainer}>
-                        {item.content.includes('/Images%') ?
-                          (<Image
+                        {item.content.includes('/Images%') ? (
+                          <Image
                             source={{ uri: item.content }}
-                            style={styles.imgContent} />
-                          )
-                          :
-                          (
-                            <>
-                              {/* <Text style={styles.message}>{item.content}</Text> */}
-                              <LinkPreview url={decodeURIComponent(item.content)}></LinkPreview>
-                            </>
-                          )
-                        }
+                            style={styles.imgContent}
+                          />
+                        ) : isMaps(item.content) ? (
+                          <MapsMess url={item.content}></MapsMess>
+                        ) : isLink(item.content) ? (
+                          <LinkPreview url={decodeURIComponent(item.content)} />
+                        ) : (
+                          <Text style={styles.message} >{item.content}</Text>
+                        )}
                       </View>
                     </View>
                   </>}
               </View>
-            )} />
+            )}
+            onContentSizeChange={() => flatListRef.current.scrollToEnd({ animated: true })}
+            onLayout={() => flatListRef.current.scrollToEnd({ animated: true })}
+          />
         </View>
 
       </ImageBackground>
@@ -343,6 +367,7 @@ export default function ChatScreen({ user, navigation }) {
               visible={open}
               onOpen={() => setOpen(true)}
               onClose={() => setOpen(false)}
+              animationType	= {'fade'}
               popover={
                 <View>
                   <List.Item

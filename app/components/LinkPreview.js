@@ -4,6 +4,9 @@ import { Avatar, Button, Card, Text } from 'react-native-paper';
 
 const LinkPreview = ({ url }) => {
     const [previewData, setPreviewData] = useState(null);
+
+   
+
     // url = 'youtube.com'
     const fetchLinkPreview = async () => {
         try {
@@ -29,7 +32,7 @@ const LinkPreview = ({ url }) => {
         fetchLinkPreview();
     }, []);
 
-    const handleLinkPress = () => {
+    const handleLinkPress = (url) => {
         // Open the link in the default browser
         Linking.openURL(url);
     };
@@ -42,14 +45,15 @@ const LinkPreview = ({ url }) => {
                     <Card
                         mode='elevated'
                         style={styles.CardContainer}
+                        onPress={() => handleLinkPress(url)}
                     >
                         <Card.Cover style={styles.image} source={{ uri: previewData.image }} />
                         <Card.Content>
                             <Text style={styles.textName} variant="titleLarge">
-                                {previewData.title}
+                                {previewData.title.slice(0, 50) +'...'}
                             </Text>
                             <Text style={styles.textEmail} variant="bodyMedium">
-                                {previewData.description}
+                                {previewData.description.slice(0, 100) + '...'}
                             </Text>
                         </Card.Content>
 
@@ -58,7 +62,7 @@ const LinkPreview = ({ url }) => {
 
 
             ) : (
-                <Text>{url}</Text>
+                <Text style={{ color: 'gray', textDecorationLine: 'underline' }}>{url}</Text>
             )}
         </View>
     );
@@ -98,7 +102,7 @@ const styles = StyleSheet.create({
         color: 'gray',
     },
     image: {
-        height: 80,
+        height: 120,
         width: '100%',
     },
 });

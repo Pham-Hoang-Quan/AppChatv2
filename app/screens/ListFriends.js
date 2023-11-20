@@ -11,6 +11,7 @@ import axios from 'axios';
 import SearchUserList from '../components/SearchUserList';
 import CardFriend from '../components/CardFriend';
 import { Picker } from 'emoji-mart-native'
+import MapsMess from '../components/MapsMess';
 
 
 
@@ -102,7 +103,7 @@ export default function ListFriends({ user, userList }) {
                             </>
                         )}
                     />
-
+                    <MapsMess/>
                 </View>
                 
             </View>
