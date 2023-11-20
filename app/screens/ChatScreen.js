@@ -80,8 +80,8 @@ export default function ChatScreen({ user, navigation }) {
   // });
 
   useEffect(() => {
-    console.log(userSelected.userId)
-    console.log(user.uid)
+    // console.log(userSelected.userId)
+    // console.log(user.uid)
     // Gọi API để lấy danh sách người dùng đã nhắn tin với người dùng hiện tại
     axios.get(`http://${ip}:3000/messages/${user.uid}/${userSelected.userId}`)
       .then((response) => {
@@ -90,9 +90,8 @@ export default function ChatScreen({ user, navigation }) {
         // console.log(data)
       })
       .catch((error) => {
-        console.error('Lỗi khi lấy danh sách người dùng:', error);
+        // console.error('Lỗi khi lấy danh sách người dùng:', error);
       });
-
     axios.get(`http://${ip}:3000/users/${user.uid}`)
       .then((responsee) => {
         const data = responsee.data;
@@ -103,9 +102,7 @@ export default function ChatScreen({ user, navigation }) {
       .catch((error) => {
 
       })
-
-
-  }, []);
+  }, [messages, userSelected]);
 
   const flatListRef = useRef();
 
@@ -373,7 +370,9 @@ export default function ChatScreen({ user, navigation }) {
                   <List.Item
                     title="Vị trí"
                     left={props => <List.Icon {...props} icon="map-marker" />}
-                    onPress={() => { }}
+                    onPress={() => navigation.navigate('MapsScreen', {
+                      userSelected: userSelected, // Chuyển thông tin người dùng
+                    })}
                   />
                   <Divider />
                   <List.Item

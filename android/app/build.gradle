@@ -120,6 +120,8 @@ dependencies {
         implementation jscFlavor
         
     }
+    implementation 'com.google.android.gms:play-services-maps:18.2.0'
+    implementation project(':react-native-maps')
    
 
 }
