@@ -311,7 +311,7 @@ export default function ChatScreen({ user, navigation }) {
                       ) : isLink(item.content) ? (
                         <LinkPreview url={decodeURIComponent(item.content)} />
                       ) : (
-                        <Text style={styles.message} >{item.content}</Text>
+                        <Text style={styles.message} >{decodeURIComponent(item.content)}</Text>
                       )}
                     </View>
                     <View style={styles.myTimeContainer}>
@@ -334,7 +334,7 @@ export default function ChatScreen({ user, navigation }) {
                         ) : isLink(item.content) ? (
                           <LinkPreview url={decodeURIComponent(item.content)} />
                         ) : (
-                          <Text style={styles.message} >{item.content}</Text>
+                          <Text style={styles.message} >{decodeURIComponent(item.content)}</Text>
                         )}
                       </View>
                     </View>
