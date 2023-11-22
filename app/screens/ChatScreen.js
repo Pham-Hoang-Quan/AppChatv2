@@ -7,6 +7,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { TopNavigation } from '@ui-kitten/components';
 import { getStorage, getDownloadURL, uploadBytes, ref, putFile } from 'firebase/storage';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import Video from 'react-native-video';
 
 import Icon from 'react-native-vector-icons/FontAwesome'; // Chọn một icon set tuỳ ý
 
@@ -156,48 +157,77 @@ export default function ChatScreen({ user, navigation }) {
 
 
   //mở thư viện ảnh
+  //mở thư viện ảnh
   const handleOpenImageLibrary = async () => {
     setOpen(false)
     try {
 
       const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.CAMERA
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        const result = await launchImageLibrary({ mediaType: 'photo' });
+        const result = await launchImageLibrary({ mediaType: 'mixed' });
         if (result.assets.length > 0) {
-          console.log(result.assets[0].uri);
-          const imageUrl = await uploadimageAsync(result.assets[0].uri)
-
-          setImg(imageUrl);
-
-          //setMessage(imageUrl);
-          await handleSendMessage(); try {
-            // Tạo một tin nhắn mới trong cơ sở dữ liệu hoặc gửi thông tin lên API của bạn
-            const response = await axios.post(`http://${ip}:3000/messages`, {
-              sender_id: user.uid,
-              receiver_id: userSelected.userId,
-              content: imageUrl,
-            });
-            // Xóa nội dung tin nhắn trong ô nhập
-            setMessage('');
-            // Cập nhật danh sách tin nhắn bằng cách gọi lại API để lấy lại danh sách tin nhắn mới nhất
-            axios.get(`http://${ip}:3000/messages/${user.uid}/${userSelected.userId}`)
-              .then((response) => {
-                const data = response.data;
-                setMessages(data);
-                console.log(data);
-              })
-              .catch((error) => {
-                console.error('Lỗi khi lấy danh sách tin nhắn:', error);
+          const mediaType = result.assets[0].type;
+          console.log(mediaType);
+          if (mediaType == 'image/jpeg') {
+            const imageUrl = await uploadimageAsync(result.assets[0].uri)
+            setImg(imageUrl);
+            console.log('Tải ảnh lên thành công. URL:' + imageUrl);
+            //setMessage(imageUrl);
+            await handleSendMessage(); try {
+              // Tạo một tin nhắn mới trong cơ sở dữ liệu hoặc gửi thông tin lên API của bạn
+              const response = await axios.post(`http://${ip}:3000/messages`, {
+                sender_id: user.uid,
+                receiver_id: userSelected.userId,
+                content: imageUrl,
               });
-          } catch (error) {
-            console.error('Lỗi khi gửi tin nhắn:', error);
+              // Xóa nội dung tin nhắn trong ô nhập
+              setMessage('');
+              // Cập nhật danh sách tin nhắn bằng cách gọi lại API để lấy lại danh sách tin nhắn mới nhất
+              axios.get(`http://${ip}:3000/messages/${user.uid}/${userSelected.userId}`)
+                .then((response) => {
+                  const data = response.data;
+                  setMessages(data);
+                  console.log(data);
+                })
+                .catch((error) => {
+                  console.error('Lỗi khi lấy danh sách tin nhắn:', error);
+                });
+            } catch (error) {
+              console.error('Lỗi khi gửi tin nhắn:', error);
+            }
+          } else if (mediaType == 'video/mp4') {
+            const videoUrl = await uploadVideoAsync(result.assets[0].uri)
+            setImg(videoUrl);
+            //setMessage(imageUrl);
+            console.log('Tải video lên thành công. URL:' + videoUrl);
+            await handleSendMessage(); try {
+              // Tạo một tin nhắn mới trong cơ sở dữ liệu hoặc gửi thông tin lên API của bạn
+              const response = await axios.post(`http://${ip}:3000/messages`, {
+                sender_id: user.uid,
+                receiver_id: userSelected.userId,
+                content: videoUrl,
+              });
+              // Xóa nội dung tin nhắn trong ô nhập
+              setMessage('');
+              // Cập nhật danh sách tin nhắn bằng cách gọi lại API để lấy lại danh sách tin nhắn mới nhất
+              axios.get(`http://${ip}:3000/messages/${user.uid}/${userSelected.userId}`)
+                .then((response) => {
+                  const data = response.data;
+                  setMessages(data);
+                  console.log(data);
+                })
+                .catch((error) => {
+                  console.error('Lỗi khi lấy danh sách tin nhắn:', error);
+                });
+            } catch (error) {
+              console.error('Lỗi khi gửi tin nhắn:', error);
+            }
           }
-
-
-          console.log('Tải ảnh lên thành công. URL:', imageUrl);
-          return imageUrl;
+          // console.log('Tải ảnh lên thành công. URL:');
+          // return imageUrl;
         } else {
           console.log('Không có ảnh được chọn');
         }
@@ -208,6 +238,32 @@ export default function ChatScreen({ user, navigation }) {
       console.error('Lỗi xử lý thư viện ảnh:', error);
     }
   };
+
+  //upload video
+  const uploadVideoAsync = async (uri) => {
+    const blob = await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        resolve(xhr.response);
+      };
+      xhr.onerror = function (e) {
+        console.log(e);
+        reject(new TypeError("Netword request failed"));
+      };
+      xhr.responseType = "blob";
+      xhr.open("GET", uri, true);
+      xhr.send(null);
+    });
+    try {
+      const storageRef = ref(storage, `Video/videoMes/${Date.now()}`);
+      const result = await uploadBytes(storageRef, blob);
+      blob.close();
+      return await getDownloadURL(storageRef);
+    } catch (error) {
+      alert(`Error uploading : ${error}`);
+    }
+  }
+
 
   //mở máy ảnh 
   const requestCameraPermission = async () => {
@@ -306,6 +362,13 @@ export default function ChatScreen({ user, navigation }) {
                           source={{ uri: item.content }}
                           style={styles.imgContent}
                         />
+                      ) : item.content.includes('/Video%') ? (
+                        <Video
+                          source={{ uri: item.content }} // Đường dẫn đến video
+                          style={styles.imgContent}
+                          controls={true} // Hiển thị controls như play, pause, volumn, v.v.
+                          resizeMode="cover" // Chế độ xem video, có thể là "cover", "contain", "stretch"
+                        />
                       ) : isMaps(item.content) ? (
                         <MapsMess url={item.content}></MapsMess>
                       ) : isLink(item.content) ? (
@@ -364,7 +427,7 @@ export default function ChatScreen({ user, navigation }) {
               visible={open}
               onOpen={() => setOpen(true)}
               onClose={() => setOpen(false)}
-              animationType	= {'fade'}
+              animationType={'fade'}
               popover={
                 <View>
                   <List.Item
