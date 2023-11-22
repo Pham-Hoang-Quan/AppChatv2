@@ -75,6 +75,7 @@ PODS:
   - hermes-engine (0.72.6):
     - hermes-engine/Pre-built (= 0.72.6)
   - hermes-engine/Pre-built (0.72.6)
+  - JitsiWebRTC (111.0.2)
   - libevent (2.1.12)
   - lottie-ios (4.2.0)
   - lottie-react-native (6.1.2):
@@ -399,6 +400,9 @@ PODS:
     - React-Core
   - react-native-viewpager (5.0.11):
     - React-Core
+  - react-native-webrtc (111.0.6):
+    - JitsiWebRTC (~> 111.0.0)
+    - React-Core
   - react-native-webview (11.23.0):
     - React-Core
   - react-native-zego-express-engine (3.10.1):
@@ -608,6 +612,7 @@ DEPENDENCIES:
   - react-native-maps (from `../node_modules/react-native-maps`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-viewpager (from `../node_modules/@react-native-community/viewpager`)"
+  - react-native-webrtc (from `../node_modules/react-native-webrtc`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - react-native-zego-express-engine (from `../node_modules/zego-express-engine-reactnative`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
@@ -653,6 +658,7 @@ SPEC REPOS:
     - Flipper-PeerTalk
     - FlipperKit
     - fmt
+    - JitsiWebRTC
     - libevent
     - OpenSSL-Universal
     - SocketRocket
@@ -721,6 +727,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-viewpager:
     :path: "../node_modules/@react-native-community/viewpager"
+  react-native-webrtc:
+    :path: "../node_modules/react-native-webrtc"
   react-native-webview:
     :path: "../node_modules/react-native-webview"
   react-native-zego-express-engine:
@@ -804,6 +812,7 @@ SPEC CHECKSUMS:
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   hermes-engine: 8057e75cfc1437b178ac86c8654b24e7fead7f60
+  JitsiWebRTC: 80f62908fcf2a1160e0d14b584323fb6e6be630b
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   lottie-ios: 809ecf2d460ed650a6aed7aa88b2ec45fab4779c
   lottie-react-native: 3d6f1b0db1fd9e18b92af1fbfbf67037611bae67
@@ -829,6 +838,7 @@ SPEC CHECKSUMS:
   react-native-maps: f699e0753c22c4d5c3a44d03895b193a4dbca6c2
   react-native-safe-area-context: 2cd91d532de12acdb0a9cbc8d43ac72a8e4c897c
   react-native-viewpager: b99b53127d830885917ef84809c5065edd614a78
+  react-native-webrtc: 255a1172fd31525b952b36aef7b8e9a41de325e5
   react-native-webview: e771bc375f789ebfa02a26939a57dbc6fa897336
   react-native-zego-express-engine: 7d02e811e31550a6e5200de81b4ca630d89ba054
   React-NativeModulesApple: 02e35e9a51e10c6422f04f5e4076a7c02243fff2

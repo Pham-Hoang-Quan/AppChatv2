@@ -1,2 +1,2 @@
-const ip = '192.168.1.36';
+const ip = '192.168.1.25';
 export default ip;
