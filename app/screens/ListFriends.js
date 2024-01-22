@@ -103,7 +103,7 @@ export default function ListFriends({ user, userList }) {
                             </>
                         )}
                     />
-                    <MapsMess/>
+                    
                 </View>
                 
             </View>

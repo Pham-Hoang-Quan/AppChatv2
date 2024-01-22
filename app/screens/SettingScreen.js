@@ -5,7 +5,7 @@ import { Avatar } from 'react-native-paper';
 import axios from 'axios';
 import ip from '../../ipConfig';
 import { List } from 'react-native-paper';
-import { FIREBASE_AUTH} from '../../FirebseConfig';
+import { FIREBASE_AUTH } from '../../FirebseConfig';
 import { signOut } from 'firebase/auth';
 
 export default function SettingScreen({ user }) {
@@ -53,7 +53,12 @@ export default function SettingScreen({ user }) {
                 <View>
                     {userData.map((item, index) => (
                         <View key={index} style={styles.center}>
-                            <Avatar.Image style={styles.avatarSetting} size={80} source={{ uri: item.avatarUrl }} />
+                            {/* <Avatar.Image style={styles.avatarSetting} size={80} source={{ uri: item.avatarUrl }} /> */}
+                            {item.avatarUrl ? (
+                                <Avatar.Image style={styles.avatarSetting} size={80} source={{ uri: item.avatarUrl }} />
+                            ) : (
+                                <Avatar.Image style={styles.avatarSetting} size={80} source={require('../../assets/avt.jpg')} />
+                            )}
                             <Text style={styles.text}>{item.fullName}</Text>
                             <Text>{item.email}</Text>
                         </View>
@@ -68,14 +73,14 @@ export default function SettingScreen({ user }) {
                         style={styles.listItemStyle}
                         onPress={changePass}
                     />
-                    <List.Item
+                    {/* <List.Item
                         title="Thay đổi thông tin"
                         description="Thay đổi thông tin của bạn"
                         titleStyle={{ fontWeight: 'bold' }}
                         left={props => <List.Icon {...props} icon="account" color='white' style={styles.listIconStyle} />}
                         style={styles.listItemStyle}
                         onPress={() => navigation.navigate('')}
-                    />
+                    /> */}
                     <List.Item
                         title="Chế độ tối"
                         description="Bật chế độ sáng, tối"
@@ -97,7 +102,7 @@ export default function SettingScreen({ user }) {
                         description="Đăng xuất tài khoản"
                         titleStyle={{ fontWeight: 'bold' }}
                         left={props => <List.Icon {...props} icon="logout" color='white' style={styles.listIconStyle} />}
-                        onPress={() => {handleSignOut()}}
+                        onPress={() => { handleSignOut() }}
                     />
                 </List.Section>
             </View>

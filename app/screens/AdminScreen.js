@@ -12,18 +12,17 @@ import ip from '../../ipConfig';
 import Account from './Account';
 import SettingScreen from './SettingScreen';
 import QRCodeScanner from './QRCodeScanner';
+import Overview from '../components/Overview'; 
+import UserListAdmin from '../components/UserListAdmin';
 
 
-const AlbumsRoute = () => <Text>Albums</Text>;
-
-const RecentsRoute = () => <Text>Recents</Text>;
-
-const NotificationsRoute = () => <Text>Notifications</Text>;
 
 
-const Home = (user) => {
+
+
+const AdminScreen = (user) => {
   const navigation = useNavigation();
-  const [isActive, setIsActive] = useState(false);
+
   const [userList, setUserList] = useState([]);
   const [userSelected, setUserSelected] = useState(null);
   // user lúc này là user lấy về từ Firebase sẽ không có các thuộc tính avt,
@@ -34,7 +33,7 @@ const Home = (user) => {
     console.log(user)
     console.log(user.user.uid)
     // Gọi API để lấy danh sách người dùng đã nhắn tin với người dùng hiện tại
-    axios.get(`http://${ip}:3000/users/${user.user.uid}/messages`)
+    axios.get(`http://${ip}:3000/users/`)
       .then((response) => {
         const data = response.data;
         setUserList(data);
@@ -44,19 +43,19 @@ const Home = (user) => {
       .catch((error) => {
         console.error('Lỗi khi lấy danh sách người dùng:', error);
       });
-  }, [user]);
-  // hàm chuyển trang qua addUser
-  const handleSwitchScreen = () => {
-    navigation.navigate('AddUserScreen', { userSelected: userSelected })
-  }
+  }, [user, ]);
+  // // hàm chuyển trang qua addUser
+  // const handleSwitchScreen = () => {
+  //   navigation.navigate('AddUserScreen', { userSelected: userSelected })
+  // }
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity onPress={handleSwitchScreen}>
-          <FontAwesome5Icon name="edit" style={styles.iconStyle} />
-        </TouchableOpacity>
-      ),
+      // headerRight: () => (
+      //   <TouchableOpacity onPress={handleSwitchScreen}>
+      //     <FontAwesome5Icon name="edit" style={styles.iconStyle} />
+      //   </TouchableOpacity>
+      // ),
       headerLeft: () => (
         // <Avatar.Image style = {{borderRadius: 0, backgroundColor: 'white'}} size={32} source={require('../../assets/logo.png')}/>
         <Image
@@ -70,25 +69,21 @@ const Home = (user) => {
 
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
-    { key: 'userList', title: 'Đoạn Chat', focusedIcon: 'home', unfocusedIcon: 'home-outline' },
-    { key: 'listFriends', title: 'Bạn bè', focusedIcon: 'account-multiple' , unfocusedIcon: 'account-multiple-outline' },
-    { key: 'qrScanner', title: 'Quét QR', focusedIcon: 'qrcode-scan', unfocusedIcon: 'qrcode-scan' },
-    { key: 'account', title: 'Cá nhân', focusedIcon: 'account-circle', unfocusedIcon: 'account-circle-outline' },
+    { key: 'overview', title: 'Tổng quan', focusedIcon: 'home', unfocusedIcon: 'home-outline' },
+    // { key: 'listFriends', title: 'Bạn bè', focusedIcon: 'account-multiple' , unfocusedIcon: 'account-multiple-outline' },
+    { key: 'userListAdmin', title: 'Người dùng', focusedIcon: 'account-multiple', unfocusedIcon: 'account-multiple' },
+    // { key: 'account', title: 'Cá nhân', focusedIcon: 'account-circle', unfocusedIcon: 'account-circle-outline' },
     { key: 'setting', title: 'Cài đặt', focusedIcon: 'cog-outline', unfocusedIcon: 'cog-outline' },
 
   ]);
-  const UserListRouter = () => <UserListScreen user={user} userList={userList} ></UserListScreen>;
-  const ListFriendsRouter = () => <ListFriends user={user} userList={userList} ></ListFriends>;
-  const AccountRouter = () => <Account user={user} userList={userList} ></Account>;
+  const OverviewRouter = () => <Overview user={user} userList={userList} ></Overview>;
   const SettingRouter = () => <SettingScreen user={user} userList={userList} ></SettingScreen>;
-  const QRScannerRouter = () => <QRCodeScanner user={user} isActive = {isActive} setIsActive = {setIsActive}></QRCodeScanner>;
+  const UserListAdminRouter = () => <UserListAdmin user={user} userList={userList} ></UserListAdmin>;
 
   
   const renderScene = BottomNavigation.SceneMap({
-    userList: UserListRouter,
-    listFriends: ListFriendsRouter,
-    qrScanner: QRScannerRouter,
-    account: AccountRouter,
+    overview: OverviewRouter,
+    userListAdmin: UserListAdminRouter,
     setting: SettingRouter,
     
   });
@@ -106,7 +101,7 @@ const Home = (user) => {
   );
 };
 
-export default Home;
+export default AdminScreen;
 
 const styles = StyleSheet.create({
   logoStyle: {

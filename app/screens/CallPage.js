@@ -1,64 +1,29 @@
-import * as React from 'react';
-import { ZegoUIKitPrebuilt } from '@zegocloud/zego-uikit-prebuilt';
+import React, { Component } from 'react';
+import { View, StyleSheet } from 'react-native';
+import { ZegoUIKitPrebuiltCall, ONE_ON_ONE_VIDEO_CALL_CONFIG } from '@zegocloud/zego-uikit-prebuilt-call-rn'
 
-
-function randomID(len) {
-    let result = '';
-    if (result) return result;
-    var chars = '12345qwertyuiopasdfgh67890jklmnbvcxzMNBVCZXASDQWERTYHGFUIOLKJP',
-        maxPos = chars.length,
-        i;
-    len = len || 5;
-    for (i = 0; i < len; i++) {
-        result += chars.charAt(Math.floor(Math.random() * maxPos));
-    }
-    return result;
-}
-
-export function getUrlParams(
-    url = window.location.href
-) {
-    let urlStr = url.split('?')[1];
-    return new URLSearchParams(urlStr);
-}
-
-export default function CallPage() {
-    const roomID = getUrlParams().get('roomID') || randomID(5);
-    let myMeeting = async (element) => {
-        // generate Kit Token
-        const appID = 1928726934 ;
-        const serverSecret = "37cf135912b600b931c7e53d957448f9e813dc33161ab1d91bc8a7c8fcd1df80";
-        const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, randomID(5), randomID(5));
-
-
-        // Create instance object from Kit Token.
-        const zp = ZegoUIKitPrebuilt.create(kitToken);
-        // start the call
-        zp.joinRoom({
-            container: element,
-            sharedLinks: [
-                {
-                    name: 'Personal link',
-                    url:
-                        window.location.protocol + '//' +
-                        window.location.host + window.location.pathname +
-                        '?roomID=' +
-                        roomID,
-                },
-            ],
-            scenario: {
-                mode: ZegoUIKitPrebuilt.GroupCall, // To implement 1-on-1 calls, modify the parameter here to [ZegoUIKitPrebuilt.OneONoneCall].
-            },
-        });
-
-
-    };
-
+export default function VoiceCallPage(props) {
     return (
-        <div
-            className="myCallContainer"
-            ref={myMeeting}
-            style={{ width: '100vw', height: '100vh' }}
-        ></div>
+        <View style={styles.container}>
+            <ZegoUIKitPrebuiltCall
+                appID='1928726934'
+                appSign='37cf135912b600b931c7e53d957448f9e813dc33161ab1d91bc8a7c8fcd1df80'
+                userID='userID'// userID can be something like a phone number or the user id on your own user system. 
+                userName='userName'
+                callID='123'// callID can be any unique string. 
+
+                config={{
+                    // You can also use ONE_ON_ONE_VOICE_CALL_CONFIG/GROUP_VIDEO_CALL_CONFIG/GROUP_VOICE_CALL_CONFIG to make more types of calls.
+                    ...ONE_ON_ONE_VIDEO_CALL_CONFIG,
+                    onOnlySelfInRoom: () => { props.navigation.navigate('HomePage') },
+                    onHangUp: () => { props.navigation.navigate('HomePage') },
+                }}
+            />
+        </View>
     );
 }
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
+})

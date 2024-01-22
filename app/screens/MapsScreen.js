@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, PermissionsAndroid, Button } from 'react-native';
+import { View, Text, PermissionsAndroid, Button, StyleSheet } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import axios from 'axios';
 import ip from '../../ipConfig';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
+import { ActivityIndicator, ProgressBar } from 'react-native-paper';
 
 const MapsScreen = ({ user }) => {
   const [region, setRegion] = useState(null);
@@ -124,10 +125,10 @@ const MapsScreen = ({ user }) => {
 
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, }}>
       {region && (
         <MapView
-          style={{ flex: 1 }}
+          style={{ flex: 1, height: 900 }}
           provider={PROVIDER_GOOGLE}
           region={region}
           onPress={handleMapPress} // Add onPress event to MapView
@@ -135,10 +136,33 @@ const MapsScreen = ({ user }) => {
           <Marker coordinate={{ latitude: region.latitude, longitude: region.longitude }} />
         </MapView>
       )}
-      {!region && <Text>Loading...</Text>}
-      <Button onPress={handleSendMap} title='Gửi vị trí'></Button>
+      {!region &&
+        <ActivityIndicator
+        size={36}
+          style={{
+            marginTop: 280,
+            alignContent: 'center',
+            justifyContent: 'center',
+
+          }}>
+        </ActivityIndicator>
+      }
+      <View style={styles.button}>
+        <Button backgroundColor='black' onPress={handleSendMap} title='Gửi vị trí'></Button>
+      </View>
+
     </View>
+
   );
 };
 
 export default MapsScreen;
+
+const styles = StyleSheet.create({
+  button: {
+    position: 'absolute',
+    bottom: 8,
+    left: 16,
+    right: 16,
+  },
+});

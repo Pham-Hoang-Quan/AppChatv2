@@ -13,35 +13,31 @@ import { Avatar, Button, Navigation, Card, Text } from 'react-native-paper';
 export default function Profile({ }) {
 
     const route = useRoute();
-    const { userId, setUserId } = route.params;
+    const { userId } = route.params;
 
     const navigation = useNavigation();
     const [userData, setUserData] = useState([]);
     const [isModalVisible, setModalVisible] = useState(false);
 
-
-
-
     useEffect(() => {
-        axios.get(`http://${ip}:3000/users/${userId}`)
-            .then((response) => {
-                const data = response.data;
-                setUserData(data);
-
-            })
-            .catch((error) => {
-                console.error('Error fetching data:', error);
-            });
-    }, []);
+        // Check if userId is available and not an empty string
+        if (userId) {
+            axios.get(`http://${ip}:3000/users/${userId}`)
+                .then((response) => {
+                    const data = response.data;
+                    setUserData(data);
+                })
+                .catch((error) => {
+                    console.error('Error fetching data:', error);
+                });
+        } else {
+            console.warn('Invalid userId. API call skipped.');
+        }
+    }, [userId]);
 
     const chatting = (user) => {
         navigation.navigate('ChatScreen', { userSelected: user });
     }
-
-    let myFunction = (a, b) => a * b;
-
-
-
 
 
     return (
@@ -49,13 +45,21 @@ export default function Profile({ }) {
         // // source={require('../../assets/Res.png')} 
         // style={styles.containerBackground}>
         <ScrollView>
-            {userData.map((item, index) => (
+            {userData.length > 0 && userData.map((item, index) => (
                 <Card
                     mode='elevated'
                     style={styles.CardContainer}
                     key={item}
                 >
-                    <Card.Cover style={styles.avatar} source={{ uri: `${item.avatarUrl}` }} />
+                    {/* <Card.Cover style={styles.avatar} source={{ uri: `${item.avatarUrl}` }} /> */}
+                    {item.avatarUrl ? (
+                        <Card.Cover style={styles.avatar}
+                            // source={{ uri: `${item.avatarUrl}` }} 
+                            source={{ uri: `${item.avatarUrl}` }}
+                        />
+                    ) : (
+                        <Card.Cover style={styles.avatar} source={require('../../assets/avt.jpg')} />
+                    )}
                     <Card.Content style={styles.info} >
                         <Text style={styles.textName} variant="titleLarge">
                             {item.fullName}

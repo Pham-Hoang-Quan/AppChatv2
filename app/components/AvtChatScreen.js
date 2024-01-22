@@ -1,9 +1,25 @@
 import React from 'react';
-import { Image, StyleSheet } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 
 function AvtChatScreen({ url }) {
+
     return (
-        <Image source={{ uri: url }} style={styles.avatar} />
+        <View>
+            {url ? (
+            <Image
+                source={{ uri: url }}
+                style={styles.avatar}
+            />
+        ) : (
+            < Image
+                source={require('../../assets/avt.jpg')}
+                style={styles.avatar}
+            />
+        )}
+        </View>
+        
+        // <Image source={{ uri: (url) ? url : require('../../assets/avt.jpg') }} style={styles.avatar} />
+        // <Image source={{ uri: url }} style={styles.avatar} />
     );
 }
 

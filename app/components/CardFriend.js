@@ -4,14 +4,21 @@ import { StyleSheet } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 const CardFriend = (props) => {
-    const navigation =  useNavigation();
+    const navigation = useNavigation();
     const { item } = props;
     return (
         <Card
             mode='elevated'
             style={styles.CardContainer}
         >
-            <Card.Cover  source={{ uri: `${item.avatarUrl}` }} />
+            {/* <Card.Cover source={{ uri: `${item.avatarUrl}` }} /> */}
+            {item.avatarUrl ? (
+                <Card.Cover
+                    source={{ uri: `${item.avatarUrl}`}}
+                />
+            ) : (
+                <Card.Cover source={require('../../assets/avt.jpg')} />
+            )}
             <Card.Content>
                 <Text style={styles.textName} variant="titleLarge">
                     {item.fullName}
@@ -32,7 +39,7 @@ const CardFriend = (props) => {
 
 const styles = StyleSheet.create({
     CardContainer: {
-        marginTop:20,
+        marginTop: 20,
         backgroundColor: 'white',
         // borderRadius: 30,
         marginRight: 10,

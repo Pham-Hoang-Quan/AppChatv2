@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { PermissionsAndroid, View, Text, FlatList, TextInput, Button, StyleSheet, ImageBackground, Image, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { TouchableOpacity, PermissionsAndroid, View, Text, FlatList, TextInput, Button, StyleSheet, ImageBackground, Image, ActivityIndicator } from 'react-native';
 import { set, push, update, get, onChildAdded } from 'firebase/database';
 import { FIREBASE_DATABASE } from '../../FirebseConfig';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -23,6 +23,14 @@ import { Divider } from '@rneui/themed';
 import { Drawer, List } from 'react-native-paper';
 import MapsMess from '../components/MapsMess';
 
+import { useSocket } from '../context/SocketProvider';
+import { io } from 'socket.io-client';
+import { AudioEncoderAndroidType, AudioSourceAndroidType, AVModeIOSOption, AVEncoderAudioQualityIOSType, AVEncodingOption } from 'react-native-audio-recorder-player';
+import RNFS from 'react-native-fs';
+import AudioRecorderPlayer from 'react-native-audio-recorder-player';
+import Sound from 'react-native-sound';
+const audioRecorderPlayer = new AudioRecorderPlayer();
+
 
 export default function ChatScreen({ user, navigation }) {
   const route = useRoute();
@@ -34,6 +42,140 @@ export default function ChatScreen({ user, navigation }) {
   const [myInfo, setMyInfo] = useState([]);
   const [sender, setSender] = useState([]);
   const [open, setOpen] = React.useState(false);
+  const [localStream, setLocalStream] = useState(null);
+
+  // callVideo
+  const [email, setEmail] = useState("quan@gmail.com"); // đặt mặc định cho có
+  const [room, setRoom] = useState("1"); // đặt mặc định cho có
+  // const socket = useSocket();
+
+  //Voice messages
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioPath, setAudioPath] = useState('');
+  const [currentAudioUrl, setCurrentAudioUrl] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [audioDurations, setAudioDurations] = useState({});
+  let sound = null;
+
+  // const socket = io(`http://${ip}:9000`);
+
+  const handleVideoCall = () => {
+    socket.emit("room:join", { email, room });
+    navigation.navigate('VideoCallScreen', { room, email });
+  }
+
+
+
+
+
+  //start record 
+  const startRecording = async () => {
+    const generateAudioName = () => `audio_${new Date().getTime()}`;
+    const audioSet = {
+      AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
+      AudioSourceAndroid: AudioSourceAndroidType.MIC,
+    };
+    const path = `${RNFS.DocumentDirectoryPath}/${generateAudioName()}`;
+    const meteringEnabled = false;
+    try {
+
+      // Yêu cầu quyền ghi âm
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+        {
+          title: 'Record Audio Permission',
+          message: 'App needs access to your microphone for recording audio.',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        // Permission granted, start recording
+        const uri = await audioRecorderPlayer?.startRecorder(path, audioSet, meteringEnabled);
+        setIsRecording(true);
+        setAudioPath(uri);
+      } else {
+        // Permission denied
+        console.warn('Record Audio permission denied');
+      }
+    } catch (error) {
+      console.error('Error starting recording:', error);
+    }
+  };
+
+  const stopRecording = async () => {
+    try {
+      const result = await audioRecorderPlayer?.stopRecorder();
+      setIsRecording(false);
+      console.log('Recording stopped. Result:', result);
+      // Upload the recorded audio file to Firebase Storage
+      const storage = getStorage();
+      const storageRef = ref(storage, `Audio/AudioMess/${result}`);
+      const audioFile = await fetch(result);
+      const audioBlob = await audioFile.blob();
+      await uploadBytes(storageRef, audioBlob, { contentType: 'audio/mpeg' });
+      // Get the download URL of the uploaded file
+      const downloadURL = await getDownloadURL(storageRef);
+      //voice message
+      await handleSendMessage(); try {
+        // Tạo một tin nhắn mới trong cơ sở dữ liệu hoặc gửi thông tin lên API của bạn
+        const response = await axios.post(`http://${ip}:3000/messages`, {
+          sender_id: user.uid,
+          receiver_id: userSelected.userId,
+          content: downloadURL,
+        });
+        // Xóa nội dung tin nhắn trong ô nhập
+        setMessage('');
+        // Cập nhật danh sách tin nhắn bằng cách gọi lại API để lấy lại danh sách tin nhắn mới nhất
+        axios.get(`http://${ip}:3000/messages/${user.uid}/${userSelected.userId}`)
+          .then((response) => {
+            const data = response.data;
+            setMessages(data);
+            console.log(data);
+          })
+          .catch((error) => {
+            console.error('Lỗi khi lấy danh sách tin nhắn:', error);
+          });
+      } catch (error) {
+        console.error('Lỗi khi gửi tin nhắn:', error);
+      } console.log('Firebase download URL:', downloadURL);
+    } catch (error) {
+      console.error('Error stopping recording:', error);
+    }
+  };
+
+  const handlePlayPauseAudio = async (audioUrl, timestamp) => {
+    if (isPlaying) {
+      // Pause audio playback
+      await audioRecorderPlayer.pausePlayer();
+      setIsPlaying(false);
+    } else {
+      // Play audio
+      const uri = audioUrl;
+      let duration = 0;
+
+      // Set up event listener for progress and completion
+      audioRecorderPlayer.addPlayBackListener(async (e) => {
+        duration = Math.floor(e.currentPosition / 1000); // Convert milliseconds to seconds
+        setAudioDurations((prevDurations) => ({
+          ...prevDurations,
+          [timestamp]: duration,
+        }));
+
+        // Check if playback has completed
+        if (e.currentPosition === e.duration) {
+          setIsPlaying(false);
+        }
+      });
+
+      await audioRecorderPlayer.startPlayer(uri);
+      setCurrentAudioUrl(uri);
+      setIsPlaying(true);
+    }
+
+  };
+
 
   //hàm kiểm tra một tin nhắn có phải là link hay không
   const isLink = (text) => {
@@ -52,8 +194,12 @@ export default function ChatScreen({ user, navigation }) {
     navigation.setOptions({
       headerRight: () => (
         <>
-          <FontAwesome5Icon name="phone-alt" style={styles.callIcon} />
-          <FontAwesome5Icon name="video" style={styles.videoIcon} />
+          <FontAwesome5Icon name="phone-alt" style={styles.callIcon} onPress={() => { navigation.navigate('CallPage', { userSelected: userSelected }) }} />
+          <FontAwesome5Icon name="video" style={styles.videoIcon} onPress={() => {
+            navigation.navigate('VideoCallScreen', { userSelected: userSelected, user: user });
+            // socket.emit("room:join", { email, room });
+            // handleVideoCall
+          }} />
           <FontAwesome5Icon name="info-circle" style={styles.infoIcon} onPress={() => { navigation.navigate('ChatInfor', { userSelected: userSelected }) }} />
         </>
       ),
@@ -97,7 +243,7 @@ export default function ChatScreen({ user, navigation }) {
       .then((responsee) => {
         const data = responsee.data;
         setSender(data)
-        console.log(data)
+        // console.log(data)
         // console.log(data.username)
       })
       .catch((error) => {
@@ -105,11 +251,20 @@ export default function ChatScreen({ user, navigation }) {
       })
   }, [messages, userSelected]);
 
+
+
   const flatListRef = useRef();
 
   useEffect(() => {
     // Scroll to the end when component is mounted
     flatListRef.current.scrollToEnd({ animated: true });
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      // Clean up resources when the component is unmounted
+      audioRecorderPlayer.stopRecorder();
+    };
   }, []);
 
 
@@ -369,6 +524,43 @@ export default function ChatScreen({ user, navigation }) {
                           controls={true} // Hiển thị controls như play, pause, volumn, v.v.
                           resizeMode="cover" // Chế độ xem video, có thể là "cover", "contain", "stretch"
                         />
+                      ) : item.content.includes('/Audio%') ? (
+                        <View style={styles.audioContainer}>
+                          <TouchableOpacity
+                            style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                            }}
+                            onPress={() => handlePlayPauseAudio(item.content, item.timestamp)}
+                          >
+                            <FontAwesome5Icon
+                              name={isPlaying && currentAudioUrl === item.content ? 'pause' : 'play'}
+                              size={20}
+                              color="#0cc0df"
+                            />
+                            <Image
+
+                              style={{ height: 40, width: 80, marginLeft: 5, marginBottom: 5 }}
+                              source={{
+                                uri: 'https://cdn-icons-png.flaticon.com/128/5445/5445172.png',
+                              }}
+                            />
+                            <Image
+
+                              style={{ height: 40, width: 80, marginBottom: 5 }}
+                              source={{
+                                uri: 'https://cdn-icons-png.flaticon.com/128/5445/5445172.png',
+                              }}
+                            />
+                          </TouchableOpacity>
+
+                          <Text style={styles.seconds}>
+                            {audioDurations[item.timestamp] !== undefined
+                              ? `${('0' + Math.floor(audioDurations[item.timestamp] / 60)).slice(-2)}:${('0' + (audioDurations[item.timestamp] % 60)).slice(-2)}s`
+                              : '0s'}
+                          </Text>
+                        </View>
+
                       ) : isMaps(item.content) ? (
                         <MapsMess url={item.content}></MapsMess>
                       ) : isLink(item.content) ? (
@@ -392,10 +584,54 @@ export default function ChatScreen({ user, navigation }) {
                             source={{ uri: item.content }}
                             style={styles.imgContent}
                           />
+                        ) : item.content.includes('/Video%') ? (
+                          <Video
+                            source={{ uri: item.content }} // Đường dẫn đến video
+                            style={styles.imgContent}
+                            controls={true} // Hiển thị controls như play, pause, volumn, v.v.
+                            resizeMode="cover" // Chế độ xem video, có thể là "cover", "contain", "stretch"
+                          />
+                        ) : item.content.includes('/Audio%') ? (
+                          <View style={styles.audioContainer}>
+                            <TouchableOpacity
+                              style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                              }}
+                              onPress={() => handlePlayPauseAudio(item.content, item.timestamp)}
+                            >
+                              <FontAwesome5Icon
+                                name={isPlaying && currentAudioUrl === item.content ? 'pause' : 'play'}
+                                size={20}
+                                color="#0cc0df"
+                              />
+                              <Image
+
+                                style={{ height: 40, width: 80, marginLeft: 5, marginBottom: 5 }}
+                                source={{
+                                  uri: 'https://cdn-icons-png.flaticon.com/128/5445/5445172.png',
+                                }}
+                              />
+                              <Image
+
+                                style={{ height: 40, width: 80, marginBottom: 5 }}
+                                source={{
+                                  uri: 'https://cdn-icons-png.flaticon.com/128/5445/5445172.png',
+                                }}
+                              />
+                            </TouchableOpacity>
+
+                            <Text style={styles.seconds}>
+                              {audioDurations[item.timestamp] !== undefined
+                                ? `${('0' + Math.floor(audioDurations[item.timestamp] / 60)).slice(-2)}:${('0' + (audioDurations[item.timestamp] % 60)).slice(-2)}s`
+                                : '0s'}
+                            </Text>
+                          </View>
                         ) : isMaps(item.content) ? (
                           <MapsMess url={item.content}></MapsMess>
                         ) : isLink(item.content) ? (
                           <LinkPreview url={decodeURIComponent(item.content)} />
+
                         ) : (
                           <Text style={styles.message} >{decodeURIComponent(item.content)}</Text>
                         )}
@@ -455,12 +691,27 @@ export default function ChatScreen({ user, navigation }) {
               <FontAwesome5Icon name="plus-circle" size={24} color="#0cc0df" style={styles.picIcon} />
             </Tooltip>
             {/* <FontAwesome5Icon name="images" onPress={handleOpenImageLibrary} size={24} color="#0cc0df" style={styles.picIcon} /> */}
-            <FontAwesome5Icon name="smile" onPress={requestCameraPermission} size={24} color="#0cc0df" style={styles.icon} />
+            <FontAwesome5Icon
+              name={isRecording ? 'stop' : 'microphone'}
+              onPress={isRecording ? stopRecording : startRecording}
+              size={24}
+              color={isRecording ? 'green' : '#0cc0df'}
+              style={styles.icon} />
             <TextInput
               style={styles.input}
               placeholder="Nhập tin nhắn..."
               value={message}
               onChangeText={(text) => setMessage(text)} />
+
+
+            {/* <TouchableOpacity onPress={isRecording ? stopRecording : startRecording}>
+              <FontAwesome5Icon
+                name={isRecording ? 'stop' : 'microphone'}
+                size={50}
+                color={isRecording ? 'red' : 'green'}
+                style={styles.icon}
+              />
+            </TouchableOpacity> */}
             <FontAwesome5Icon name="paper-plane" onPress={handleSendMessage} size={24} color="#0cc0df" style={styles.icon} />
           </View>
         </View>
@@ -612,5 +863,8 @@ const styles = StyleSheet.create({
     height: 200,
     width: 200,
   },
+  audioContainer: {
+    width: 180,
+  }
 });
 

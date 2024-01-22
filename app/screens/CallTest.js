@@ -33,10 +33,12 @@ import { StyleSheet } from 'react-native';
 
 import { useNavigation, useRoute } from '@react-navigation/native';
 
-export default function VideoCallScreen({}) { 
+export default function CallTest({}) { 
 
   const route = useRoute();
-  const { userSelected, user } = route.params;
+//   const { userSelected, user } = route.params;
+    const userSelected = 'other';
+    const user = 'user';
 
   const [localStream, setlocalStream] = useState(null);
 
@@ -48,7 +50,7 @@ export default function VideoCallScreen({}) {
     // Math.floor(100000 + Math.random() * 900000).toString(),
     user.uid
   );
-  const otherUserId = useRef(userSelected.userId);
+  const otherUserId = useRef(userSelected);
 
   const socket = SocketIOClient(`http://${ip}:3500`, {
     transports: ['websocket'],
@@ -80,8 +82,8 @@ export default function VideoCallScreen({}) {
   let remoteRTCMessage = useRef(null);
 
   useEffect(() => {
-    console.log('callee',userSelected.userId);
-    console.log('caller',user.uid);
+    // console.log('callee',userSelected.userId);
+    // console.log('caller',user.uid);
     console.log('remoteStream', remoteStream)
     console.log('localStream', localStream)
   }, ([remoteStream, localStream]))
@@ -273,7 +275,7 @@ export default function VideoCallScreen({}) {
                     color: '#ffff',
                     letterSpacing: 6,
                   }}>
-                  {userSelected.fullName}
+                  {userSelected}
                 </Text>
               </View>
             </View>

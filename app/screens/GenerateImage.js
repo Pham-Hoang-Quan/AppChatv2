@@ -19,6 +19,7 @@ import { auth } from 'firebase/auth';
 import { } from 'react-native-elements/dist/image/Image';
 
 
+
 export default function GenerateImage({ user }) {
 
     const navigation = useNavigation();
@@ -51,6 +52,8 @@ export default function GenerateImage({ user }) {
             });
     };
 
+    
+
     const generateImage = async () => {
         if (description === '') {
             return 0;
@@ -63,15 +66,18 @@ export default function GenerateImage({ user }) {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: "Bearer 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"
+                        Authorization: "Bearer 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"
                     },
                     body: JSON.stringify({
+                        model: "dall-e-2",
                         prompt: description,
                         n: 1,
                         size: "512x512",
                     })
                 }
             );
+
+
 
             const result = await response.json();
             // Lấy đường dẫn ảnh từ kết quả và cập nhật state

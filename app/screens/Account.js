@@ -182,12 +182,24 @@ export default function Account({ user }) {
                     {userData.map((item, index) => (
                         <View key={index}>
                             <View style={styles.avatarContainer}>
-                            <TouchableOpacity onPress={seeAVT}>
-                                <Image 
-                                    source={{ uri: item.avatarUrl }}
-                                    style={styles.avatar}
-                                />
-                                  </TouchableOpacity>
+                                <TouchableOpacity onPress={seeAVT}>
+
+                                    {/* <Image
+                                        source={{ uri: item.avatarUrl }}
+                                        style={styles.avatar}
+                                    /> */}
+                                    {item.avatarUrl ? (
+                                        <Image
+                                            source={{ uri: item.avatarUrl }}
+                                            style={styles.avatar}
+                                        />
+                                    ) : (
+                                        < Image
+                                            source={require('../../assets/avt.jpg')}
+                                            style={styles.avatar}
+                                        />
+                                    )}
+                                </TouchableOpacity>
                                 <View style={styles.iconContainer}>
                                     <TouchableOpacity onPress={toggleModal}>
                                         <FontAwesome5Icon name="camera" style={styles.camera} />
@@ -240,9 +252,9 @@ export default function Account({ user }) {
                                                 style={styles.avatarCamera}
                                             />
                                             <Text style={{ backgroundColor: '#EDE4FF', fontSize: 0.5, borderRadius: 5 }} />
-                                            <TouchableOpacity onPress={seeAVT} style = {styles.closeButton}>
+                                            <TouchableOpacity onPress={seeAVT} style={styles.closeButton}>
                                                 {/* <Text style={styles.modalOption}>Hủy</Text> */}
-                                                <FontAwesome5Icon name="times" size={24} color="gray"/>
+                                                <FontAwesome5Icon name="times" size={24} color="gray" />
                                             </TouchableOpacity>
                                         </View>
                                     </View>
@@ -280,7 +292,7 @@ export default function Account({ user }) {
                                             <TouchableOpacity onPress={seeAVT} >
                                                 <Text style={styles.modalOption} onPress={() => {
                                                     navigation.navigate('GenerateImage');
-                                
+
                                                 }}>
                                                     Tạo ảnh bằng AI
                                                 </Text>
@@ -290,7 +302,7 @@ export default function Account({ user }) {
                                                 <Text style={styles.modalOption} onPress={() => {
                                                     seeAVT(); // Gọi hàm để chọn ảnh từ thư viện
                                                     toggleModal(); // Gọi hàm để tắt modal
-                                                  
+
                                                 }}>
                                                     Xem ảnh
                                                 </Text>

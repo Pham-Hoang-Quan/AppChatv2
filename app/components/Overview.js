@@ -9,14 +9,10 @@ import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import axios from 'axios';
 import SearchUserList from '../components/SearchUserList';
 import ip from '../../ipConfig';
-import { TextInput } from 'react-native-paper';
-import { SearchBar } from 'react-native-elements';
+import Chart from './Chart';
 
-export default function UserListScreen({ user,
-  // userList 
-}) {
+export default function Overview({ user, userList }) {
   const navigation = useNavigation();
-  const [searchQuery, setSearchQuery] = useState('');
 
 
   // const [userList, setUserList] = useState([]);
@@ -24,21 +20,9 @@ export default function UserListScreen({ user,
 
 
   useEffect(() => {
-    axios.get(`http://${ip}:3000/users/${user.user.uid}/messages`)
-      .then((response) => {
-        const data = response.data;
-        setUserList(data);
-        console.log(data);
-
-      })
-      .catch((error) => {
-        console.error('Lỗi khi lấy danh sách người dùng:', error);
-      });
-  }, [userList]);
-
-  const [userList, setUserList] = useState([]);
-
-
+    console.log('UserList', userList);
+    console.log('UserListCount', userList.length);
+  });
 
 
   const handleUserSelect = (user) => {
@@ -63,9 +47,15 @@ export default function UserListScreen({ user,
     navigation.navigate('AddUserScreen', { userSelected: userSelected })
   }
 
-  const filteredUserList = userList.filter((user) =>
-    user.fullName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // React.useLayoutEffect(() => {
+  //   navigation.setOptions({
+  //     headerRight: () => (
+  //       <TouchableOpacity onPress={handleSwitchScreen}>
+  //         <FontAwesome5Icon name="edit" style={styles.signOutIcon} />
+  //       </TouchableOpacity>
+  //     ),
+  //   });
+  // }, [navigation]);
 
   return (
     <ImageBackground
@@ -73,47 +63,24 @@ export default function UserListScreen({ user,
       style={styles.containerBackground}>
       <View style={styles.container}>
         <View style={styles.listContainer}>
-          {/* <SearchUserList></SearchUserList>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search..."
-            onChangeText={(text) => setSearchQuery(text)}
-            value={searchQuery}
-          /> */}
-          <SearchBar
-            placeholder="Tìm kiếm..."
-            onChangeText={(text) => setSearchQuery(text)}
-            value={searchQuery}
-            containerStyle={styles.containerStyle}
-            inputStyle={styles.inputStyle}
-            // lightTheme = {'true'}
-            inputContainerStyle={styles.inputContainerStyle}
-          >
-
-          </SearchBar>
-
-          <FlatList
-            // data={userList}
-            data={filteredUserList}
+          {/* <SearchUserList></SearchUserList> */}
+          <Chart
+            userList={userList}
+          ></Chart>
+          {/* <FlatList
+            data={userList}
             keyExtractor={(item) => item.userId}
             renderItem={({ item }) => (
               <TouchableOpacity onPress={() => { handleUserSelect(item), setUserSelected(item) }}>
                 <View style={styles.userItem}>
 
-                  {item.avatarUrl ? (
-                    <Image
-                      source={{ uri: item.avatarUrl }}
-                      style={styles.avatar}
-                    />
-                  ) : (
-                    < Image
-                      source={require('../../assets/avt.jpg')}
-                      style={styles.avatar}
-                    />
-                  )}
+                  <Image
+                    source={{ uri: item.avatarUrl }}
+                    style={styles.avatar}
+                  />
                   <View style={styles.userInfo}>
                     <Text style={styles.fullName}>{item.fullName}</Text>
-                    <Text style={styles.lastMess}>hello</Text>
+                    <Text style={styles.lastMess}>{item.e}</Text>
                   </View>
 
                   <FontAwesome5Icon name="chevron-right" style={styles.arrowIcon} />
@@ -122,7 +89,7 @@ export default function UserListScreen({ user,
                 <View style={styles.separator} />
               </TouchableOpacity>
             )}
-          />
+          /> */}
         </View>
 
       </View>
@@ -219,42 +186,4 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  containerStyle: {
-    backgroundColor: 'white', // Đổi màu nền thành màu trắng
-    borderBottomColor: 'transparent', // Ẩn viền dưới thanh tìm kiếm
-    borderTopColor: 'transparent', // Ẩn viền trên thanh tìm kiếm
-    color: 'white',
-    borderRadius: 30,
-    // height: 40,
-    marginRight: 10,
-    marginLeft:10,
-    marginBottom: 10,
-    fontSize: '10px',
-    shadowColor: 'black', 
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3, 
-    elevation: 4,
-    
-    
-},
-inputStyle: {
-    color: 'gray', // Đổi màu văn bản thành màu trắng
-    backgroundColor: 'white',
-    borderRadius: 30,
-    fontSize: 16,
-    height: 50,
-    
-},
-inputContainerStyle: {
-    color: 'white',
-    backgroundColor: 'white',
-    borderRadius: 30,
-    height: 25,
-    // shadowColor: 'black', 
-    // shadowOffset: { width: 0, height: 4 },
-    // shadowOpacity: 0.3, 
-    // elevation: 4,
-    // borderBottomColor: 'black',
-    
-},
 });

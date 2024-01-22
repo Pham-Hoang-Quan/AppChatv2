@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Avatar, Card, IconButton } from 'react-native-paper';
 import { ImageBackground, View, Text, StyleSheet, Image, Dimensions, FlatList, ScrollView } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import axios from 'axios';
 import ip from '../../ipConfig';
 
 export default function ListLinkScreen({ user }) {
     const navigation = useNavigation();
     const [userData, setUserData] = useState([]);
+    const route = useRoute();
+    const { linkMess } = route.params;
     const data = [
         { id: 1, title: "Card Title 1", subtitle: "Card Subtitle 1", imageUrl: 'https://i.pinimg.com/564x/61/e9/d4/61e9d41ec35964eb94117e25c4a7b66a.jpg' },
         { id: 2, title: "Card Title 2", subtitle: "Card Subtitle 2", imageUrl: 'https://i.pinimg.com/564x/61/e9/d4/61e9d41ec35964eb94117e25c4a7b66a.jpg' },
@@ -31,9 +33,9 @@ export default function ListLinkScreen({ user }) {
     const renderItem = ({ item }) => (
         <View style={styles.center}>
             <Card.Title
-                title='Heheheh'
-                subtitle='hahahahah'
-                left={() => <Image source={{ uri: item.imageUrl }} style={styles.avatarImage} />}
+                title= {item}
+                subtitle='Liên kết..'
+                left={() => <Image source={{ uri: 'https://img.freepik.com/premium-photo/3d-realistic-chain-link-icon-3d-illustration_394271-4494.jpg?size=626&ext=jpg&ga=GA1.1.1119574098.1705373792&semt=ais'}} style={styles.avatarImage} />}
                 titleStyle={styles.cardTitle}
                 subtitleStyle={styles.cardSubtitle}
                 style={styles.cardArea}
@@ -47,9 +49,9 @@ export default function ListLinkScreen({ user }) {
         <ImageBackground source={require('../../assets/Res.png')} style={styles.containerBackground}>
             <View>
                 <FlatList
-                    data={data}
+                    data={linkMess}
                     renderItem={renderItem}
-                    keyExtractor={(item) => item.id.toString()}
+                    keyExtractor={(item) => item}
                 />
             </View>
         </ImageBackground>

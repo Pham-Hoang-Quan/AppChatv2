@@ -29,6 +29,9 @@
     android:roundIcon="@mipmap/ic_launcher_round"
     android:allowBackup="false"
     android:theme="@style/AppTheme">
+    <service
+      android:name="app.notifee.core.ForegroundService"
+      android:foregroundServiceType="mediaProjection|camera|microphone" />
     <meta-data
       android:name="com.google.mlkit.vision.DEPENDENCIES"
       android:value="barcode" />

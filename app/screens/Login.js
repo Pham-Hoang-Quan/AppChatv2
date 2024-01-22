@@ -1,4 +1,4 @@
-import { View, Image, Text, StyleSheet, ActivityIndicator, ImageBackground, FlatList, Button, TouchableOpacity } from 'react-native'
+import {Pressable, View, Image, Text, StyleSheet, ActivityIndicator, ImageBackground, FlatList, Button, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { FIREBASE_AUTH } from '../../FirebseConfig';
 import { useNavigation } from '@react-navigation/native';
@@ -6,8 +6,14 @@ import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'fire
 import { TextInput, IconButton } from "@react-native-material/core";
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { signInWithCredential, GoogleAuthProvider } from 'firebase/auth';
+// import Pressable from 'react-native';
+
 
 // import { Examples } from '@shoutem/ui';
+import axios from 'axios';
+import ip from '../../ipConfig';
 
 
 const Login = () => {
@@ -49,6 +55,79 @@ const Login = () => {
         }
     }
 
+    const googleSignIn = async () => {
+        try {
+            await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+            const { idToken } = await GoogleSignin.signIn();
+            const googleCredential = GoogleAuthProvider.credential(idToken);
+
+            GoogleSignin.configure({
+                // webClientId: '922650223041-5ngaleu67dg66prv8njel5e7atmdmtae.apps.googleusercontent.com',
+                iosClientId: '64241256184-5h34i42a2tudl9tc0cebionuf86eh72s.apps.googleusercontent.com',
+                offlineAccess: true,
+            })
+
+            // Use signInWithCredential instead of auth().signInWithCredential
+            const userCredential = await signInWithCredential(auth, googleCredential);
+
+            // console.log(result.assets[0].udi);
+
+
+            // Lấy thông tin user từ userCredential
+            const user = userCredential.user;
+            console.log(user.displayName)
+            console.log(user.email)
+            console.log(user.photoURL)
+            console.log(user.phoneNumber)
+            const userId = user.uid;
+
+            // Kiểm tra xem người dùng đã tồn tại hay chưa
+            const checkUserExists = await axios.get(`http://${ip}:3000/users/findUserById/${userId}`);
+
+            if (checkUserExists.data) {
+                // Người dùng đã tồn tại, bạn có thể xử lý nó tại đây
+                console.log('User already exists:', checkUserExists.data);
+            } else {
+                // Người dùng chưa tồn tại, thêm vào cơ sở dữ liệu
+                await axios.post(`http://${ip}:3000/users`, {
+                    userId,
+                    username: user.displayName,
+                    fullName: user.displayName,
+                    email: user.email,
+                    password: generateRandomPassword(),
+                    avatarUrl: user.photoURL,
+                    phoneNumber: 'null',
+                });
+            }
+
+            navigation.navigate("Home");
+        } catch (error) {
+            console.error('Error during Google Sign-In:', error);
+            // Xử lý lỗi tại đây
+        }
+    };
+
+    // Hàm tạo mật khẩu ngẫu nhiên
+    const generateRandomPassword = () => {
+        const length = 8; // Độ dài mật khẩu mong muốn
+        const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let password = "";
+
+        for (let i = 0; i < length; i++) {
+            const randomIndex = Math.floor(Math.random() * charset.length);
+            password += charset[randomIndex];
+        }
+
+        return password;
+    };
+
+    useEffect(() => {
+        GoogleSignin.configure({
+            webClientId: '64241256184-96389nfgo84or24oft45rj8923qni8qu.apps.googleusercontent.com',
+            forceCodeForRefreshToken: true, // Thêm dòng này để debug
+            offlineAccess: true,
+        });
+    }, []);
 
 
     return (
@@ -86,10 +165,14 @@ const Login = () => {
                 >
                     <Text style={{ color: '#0cc0df', fontWeight: 500 }}>CREATE AN ACCOUNT</Text>
                 </TouchableOpacity>
-                <Text style={{ alignSelf: 'center', marginTop: 30 }}>OR</Text>
+                <Text onPress={() => { navigation.navigate('CallTest') }} style={{ alignSelf: 'center', marginTop: 30 }}>OR</Text>
                 <View style={styles.icons}>
-                    <FontAwesome5Icon name="facebook" size={32} color="#818AD1" style={[styles.iconF]} />
-                    <FontAwesome5Icon name="google" size={32} color="#EDA7CC" style={[styles.iconG]} />
+                    <FontAwesome5Icon onPress={() => { navigation.navigate('JoinScreen') }} name="facebook" size={32} color="#818AD1" style={[styles.iconF]} />
+                    <Pressable onPress={() => googleSignIn() }>
+
+                        <FontAwesome5Icon name="google" size={32} color="#EDA7CC" style={[styles.iconG]} />
+                    </Pressable>
+                    {/* <FontAwesome5Icon name="google" size={32} color="#EDA7CC" style={[styles.iconG]} /> */}
                 </View>
 
 
